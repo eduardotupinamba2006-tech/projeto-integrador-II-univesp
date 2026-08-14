@@ -16,11 +16,6 @@ Sistema web para dioceses e paróquias católicas, com dois módulos principais:
 - Painel diocesano (leitura consolidada de todas as paróquias da diocese)
 - Autenticação própria, acessibilidade, testes automatizados, CI/CD e deploy gratuito
 
-### Ficou fora, por decisão consciente de escopo
-
-- **Gestão de turmas de catequese.** O projeto original incluía três subsistemas independentes (certidões, dízimo, catequese) além da camada de autenticação em três níveis. Isso é tamanho de sistema de produto para uma equipe, não de entrega acadêmica solo. Catequese fica como próxima fase.
-- **Login via gov.br.** O Login Único gov.br é desenhado para integração por órgãos públicos, o processo de solicitação de credencial é conduzido por agente público de um órgão. Uma diocese ou paróquia é uma entidade religiosa de direito privado, não um órgão público, então a aprovação em produção não é realista dentro do prazo do projeto. Login é feito por conta própria (Supabase Auth, email e senha), com papel de acesso definido por um campo no perfil do usuário.
-
 ## Arquitetura
 
 Frontend em HTML, CSS e JavaScript puro, sem framework e sem Node no runtime de produção, hospedado na Vercel. As poucas rotinas que precisam rodar protegidas no servidor (nunca no navegador do usuário) são funções Python na própria Vercel: geração do PDF final da certidão, webhook de confirmação de pagamento, e disparo de email. Banco de dados, autenticação e storage ficam no Supabase (Postgres com Row Level Security). Emails transacionais e SMTP customizado do Supabase Auth via Resend. Pagamento via API Pix do Mercado Pago.
@@ -157,18 +152,3 @@ Convicção religiosa é dado pessoal sensível pela LGPD (art. 5º, inciso II),
 
 - Nenhum dado real de paroquiano é usado fora de produção real e autorizada.
 - Ambiente de desenvolvimento, teste e demonstração usa exclusivamente dado sintético.
-
-## Decisões registradas
-
-- **Login próprio, não gov.br.** Inelegibilidade de entidade privada para integração de produção.
-- **Catequese fora desta entrega.** Escopo original grande demais para entrega solo.
-- **Certidão por aprovação paroquial, não autoatendimento.** É o que dá substância real ao sistema como emissor de certidão, e não gerador de PDF com login na frente.
-- **Taxa de plataforma só na certidão, nunca no dízimo.** Cobrar taxa sobre doação religiosa tem peso ético diferente de taxa de emissão de documento, prática já comum em cartório e secretaria paroquial.
-- **PDF gerado no servidor, não no navegador.** Geração no cliente é editável via ferramenta de desenvolvedor antes de gerar o arquivo, o que invalida a credibilidade de um documento oficial.
-- **Node evitado no runtime de produção, não nas ferramentas de teste.** Vitest e Playwright rodam sobre Node localmente e no CI, isso não aparece no que é servido ao usuário final.
-
-## Roadmap
-
-- Gestão de turmas de catequese
-- Solicitação de login gov.br em produção, via patrocínio de órgão público, se viável
-- Split de pagamento real por paróquia (hoje o pagamento é centralizado em uma conta, atribuído internamente por `paroquia_id`)
