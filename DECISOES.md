@@ -87,3 +87,11 @@ O cabeçalho (com o link "Pular para o conteúdo"), o rodapé e o script do VLib
 - Continua repetido em cada página só o `<head>` (título, fonte, ícones, CSS e `layout.js`), que sem build não tem como ser compartilhado.
 
 O custo é que o cabeçalho e o rodapé passam a depender de JavaScript. Todas as outras páginas do sistema já dependiam dele para funcionar, então não há perda prática.
+
+## 10. Google Maps
+
+- O mapa e a geocodificação usam a Maps JavaScript API, carregada sob demanda por `js/mapa.js` só quando `/api/config` devolve `googleMapsKey`. A chave vai para o navegador de qualquer forma, então a proteção é a restrição por domínio no Google Cloud, e não o sigilo.
+- A busca por endereço ou CEP usa o `Geocoder` da própria Maps JavaScript API, com a mesma chave. Não foi criada nenhuma função Python para isso.
+- Os marcadores são `AdvancedMarkerElement`, que o teclado alcança, com o Map ID de demonstração do Google (`DEMO_MAP_ID`), coerente com a "chave demo" da especificação.
+- O mapa carrega em segundo plano e é complementar: a lista de paróquias continua sendo o caminho principal, inclusive para leitor de tela. Sem a chave, ou se o Google recusar a chave (`gm_authFailure`), o campo de endereço e o mapa somem e a página funciona como antes.
+- A chave é restrita ao domínio da Vercel, então localmente, e nos testes Playwright locais, o mapa não aparece.

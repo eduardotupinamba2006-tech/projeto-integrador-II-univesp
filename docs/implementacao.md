@@ -144,7 +144,7 @@ Os gatilhos leem a URL da função e um segredo compartilhado do Vault do Supaba
 | `pages/dashboard-diocese.html` | diocese | totais da diocese, certidões e arrecadação por paróquia e por mês |
 | `pages/validar.html` | qualquer pessoa | resultado da leitura do QR Code |
 
-A escolha de paróquia aparece na certidão e no dízimo. Ela busca por nome ou endereço, ignorando acentos, e ordena as paróquias pela distância até o usuário, usando a localização do navegador. A distância é calculada pela fórmula de Haversine, em `js/lib/geo.js`. O mapa do Google entra na etapa de integrações.
+A escolha de paróquia aparece na certidão e no dízimo. Ela busca por nome ou endereço, ignorando acentos, e ordena as paróquias pela distância até o usuário, usando a localização do navegador. A distância é calculada pela fórmula de Haversine, em `js/lib/geo.js`. Com a chave do Google Maps configurada (`GOOGLE_MAPS_API_KEY`), aparecem também a busca a partir de um endereço ou CEP, feita pela geocodificação do Google, e um mapa com um marcador por paróquia. Clicar num marcador escolhe a paróquia, e escolher na lista destaca o marcador. Sem a chave, ou se o Google recusar a chave, o mapa some e a lista continua funcionando.
 
 O cliente do Supabase é carregado por CDN, com a versão fixada. As páginas protegidas mandam quem não está logado para o login e, depois de entrar, trazem a pessoa de volta para onde ela estava. Esse retorno só aceita endereços internos do site, para não ser usado como redirecionamento para sites externos.
 
@@ -221,7 +221,7 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 |---|---|
 | Migrations aplicadas e RLS isolando os três papéis | feito e testado no CI e no projeto de desenvolvimento; falta aplicar em produção |
 | Cadastro, login e recuperação de senha | páginas prontas e testadas; o email de recuperação depende do SMTP do Resend |
-| Busca de paróquia por proximidade | feita com a localização do navegador; falta o Google Maps |
+| Busca de paróquia por proximidade | feita com a localização do navegador e, com a chave configurada, com endereço ou CEP e mapa do Google |
 | Fluxo completo de certidão até o PDF com QR Code | testado de ponta a ponta a partir do pedido pago; falta o Pix sandbox real |
 | Validação do QR Code para certidão válida e inválida | feito e testado |
 | Fluxo completo de dízimo até a arrecadação | lógica pronta e testada com simulação; falta o Pix sandbox real |
@@ -239,7 +239,7 @@ As integrações externas dependem de contas e chaves que a equipe precisa criar
 
 - Mercado Pago: credenciais de teste (Access Token de teste) e o segredo de assinatura das notificações.
 - Resend: chave da API, configuração como SMTP do Supabase Auth e remetente.
-- Google Maps: chave com Maps JavaScript API e Geocoding API, restrita aos domínios do site.
+- Google Maps: cadastrar `GOOGLE_MAPS_API_KEY` na Vercel. A chave precisa das APIs Maps JavaScript e Geocoding e fica restrita ao domínio do site.
 - Vercel: cadastrar as variáveis de ambiente também no Preview e colocar o Playwright no CI contra o preview.
 - Produção: aplicar as migrations no projeto de produção e cadastrar os segredos do Vault para os emails.
 - Fotos: confirmar a licença das imagens em `img/` antes de publicar e, se preciso, dar o crédito no rodapé.
