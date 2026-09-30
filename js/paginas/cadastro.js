@@ -1,8 +1,6 @@
 import { supabase } from '../supabase.js';
 import { formatarCPF, validarCPF, validarEmail, validarSenha } from '../lib/validacao.js';
-import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '../ui.js';
-
-montarCabecalho();
+import { marcarErro, mostrarMensagem, ocupado } from '../ui.js';
 
 const form = document.getElementById('form-cadastro');
 const mensagem = document.getElementById('mensagem');

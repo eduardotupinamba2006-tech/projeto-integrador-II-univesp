@@ -8,15 +8,10 @@
 <link rel="preload" href="/fonts/outfit-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
 <link rel="stylesheet" href="/css/estilo.css">
+<script src="/js/layout.js"></script>
 </head>
 <body>
-<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
-<header class="cabecalho">
-  <div class="cabecalho-conteudo">
-    <a class="marca" href="/"><i class="ph-light ph-church" aria-hidden="true"></i>Certidões e Dízimo</a>
-    <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
-  </div>
-</header>
+<site-cabecalho></site-cabecalho>
 
 <main id="conteudo" class="estreito" tabindex="-1">
   <h1>Criar nova senha</h1>
@@ -35,13 +30,12 @@
   </form>
 </main>
 
-<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<site-rodape></site-rodape>
 <script type="module">
   import { supabase } from '/js/supabase.js';
   import { validarSenha } from '/js/lib/validacao.js';
-  import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '/js/ui.js';
+  import { marcarErro, mostrarMensagem, ocupado } from '/js/ui.js';
 
-  montarCabecalho();
   const form = document.getElementById('form-nova-senha');
   const senha = document.getElementById('senha');
   const senha2 = document.getElementById('senha2');

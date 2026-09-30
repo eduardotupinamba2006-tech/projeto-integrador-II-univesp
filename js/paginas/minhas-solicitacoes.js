@@ -2,10 +2,9 @@ import { supabase } from '../supabase.js';
 import { chamarApi, exigirPerfil } from '../sessao.js';
 import { escaparHtml, formatarDataHora, SACRAMENTOS, STATUS_SOLICITACAO } from '../lib/formatacao.js';
 import { mostrarPix } from '../pix.js';
-import { montarCabecalho, mostrarMensagem, ocupado } from '../ui.js';
+import { mostrarMensagem, ocupado } from '../ui.js';
 
 const perfil = await exigirPerfil(['publico']);
-montarCabecalho();
 
 const lista = document.getElementById('lista');
 const mensagem = document.getElementById('mensagem');

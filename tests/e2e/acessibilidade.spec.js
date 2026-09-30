@@ -28,6 +28,14 @@ async function semViolacoes(page) {
   expect(resumo).toEqual([]);
 }
 
+test('botão do VLibras aparece em todas as páginas públicas', async ({ page }) => {
+  for (const caminho of PUBLICAS) {
+    await page.goto(caminho);
+    // O widget fica num shadow DOM aberto, que o Playwright atravessa.
+    await expect(page.locator('#vlibras-button'), caminho).toBeVisible();
+  }
+});
+
 for (const esquema of ['light', 'dark']) {
   test.describe(`modo ${esquema === 'light' ? 'claro' : 'escuro'}`, () => {
     test.use({ colorScheme: esquema });

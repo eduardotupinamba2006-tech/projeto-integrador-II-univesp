@@ -150,7 +150,7 @@ O cliente do Supabase é carregado por CDN, com a versão fixada. As páginas pr
 
 ### Acessibilidade
 
-As páginas usam HTML semântico, com cabeçalho, navegação, conteúdo principal e rodapé marcados. Todo campo tem rótulo visível. As mensagens de erro ficam ligadas ao campo por `aria-describedby`, e os avisos de status são anunciados pelo leitor de tela com `aria-live`. Há um link para pular direto ao conteúdo, o foco do teclado fica sempre visível e os alvos de toque têm pelo menos 44 px. O teste automático com axe-core roda em todas as páginas e nos dois modos de cor. O widget VLibras entra na etapa de integrações.
+As páginas usam HTML semântico, com cabeçalho, navegação, conteúdo principal e rodapé marcados. Todo campo tem rótulo visível. As mensagens de erro ficam ligadas ao campo por `aria-describedby`, e os avisos de status são anunciados pelo leitor de tela com `aria-live`. Há um link para pular direto ao conteúdo, o foco do teclado fica sempre visível e os alvos de toque têm pelo menos 44 px. O teste automático com axe-core roda em todas as páginas e nos dois modos de cor. O widget VLibras aparece em todas as páginas, como um botão fixo na lateral direita. O cabeçalho, o rodapé e o VLibras são componentes únicos (`<site-cabecalho>` e `<site-rodape>`, em `js/layout.js`), usados por todas as páginas.
 
 ### Identidade visual
 
@@ -227,10 +227,10 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 | Fluxo completo de dízimo até a arrecadação | lógica pronta e testada com simulação; falta o Pix sandbox real |
 | Painéis paroquial e diocesano com a RLS respeitada | feito e testado |
 | Sete emails em sandbox com registro em `emails_enviados` | lógica e registro testados; falta configurar o Resend |
-| VLibras em todas as páginas, sem violação nova no axe-core | axe-core sem violações; falta o VLibras |
+| VLibras em todas as páginas, sem violação nova no axe-core | feito: widget oficial em todas as páginas, com teste de presença e axe-core sem violações |
 | Vitest, pytest e Playwright passando localmente e no CI | passam localmente; o Playwright ainda não está no CI |
 | GitHub Actions rodando a suíte a cada push | roda banco, funções e Vitest; falta o Playwright |
-| Deploy de preview e de produção na Vercel | não iniciado |
+| produção publicada e testada (27 testes Playwright contra o site); preview ainda sem variáveis |
 | `DECISOES.md` com a mudança de stack | feito |
 
 ## O que falta
@@ -240,7 +240,6 @@ As integrações externas dependem de contas e chaves que a equipe precisa criar
 - Mercado Pago: credenciais de teste (Access Token de teste) e o segredo de assinatura das notificações.
 - Resend: chave da API, configuração como SMTP do Supabase Auth e remetente.
 - Google Maps: chave com Maps JavaScript API e Geocoding API, restrita aos domínios do site.
-- VLibras: incluir o script oficial em todas as páginas e manter o axe-core sem violações.
-- Vercel: conectar o repositório, cadastrar as variáveis de ambiente de preview e produção e colocar o Playwright no CI contra o preview.
+- Vercel: cadastrar as variáveis de ambiente também no Preview e colocar o Playwright no CI contra o preview.
 - Produção: aplicar as migrations no projeto de produção e cadastrar os segredos do Vault para os emails.
 - Fotos: confirmar a licença das imagens em `img/` antes de publicar e, se preciso, dar o crédito no rodapé.

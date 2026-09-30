@@ -155,6 +155,13 @@ img {
 
 /* ------------------------------------------------------------ Cabeçalho */
 
+/* Os componentes de js/layout.js não geram caixa própria: o cabeçalho e o rodapé
+   continuam filhos diretos do body para o layout (flex e sticky). */
+site-cabecalho,
+site-rodape {
+  display: contents;
+}
+
 .cabecalho {
   position: sticky;
   top: 0.75rem;

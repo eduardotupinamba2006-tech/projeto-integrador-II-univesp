@@ -3,10 +3,9 @@ import { chamarApi, exigirPerfil } from '../sessao.js';
 import { arrecadacaoPorMes, somarArrecadacao } from '../lib/arrecadacao.js';
 import { escaparHtml, formatarData, formatarDataHora, formatarMoeda, SACRAMENTOS } from '../lib/formatacao.js';
 import { validarMotivo } from '../lib/validacao.js';
-import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '../ui.js';
+import { marcarErro, mostrarMensagem, ocupado } from '../ui.js';
 
 const perfil = await exigirPerfil(['paroquial']);
-montarCabecalho();
 
 const $ = (id) => document.getElementById(id);
 const mensagem = $('mensagem');

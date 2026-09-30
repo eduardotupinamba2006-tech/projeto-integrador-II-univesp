@@ -1,9 +1,7 @@
 import { supabase } from '../supabase.js';
 import { destinoSeguro, perfilAtual, PAGINA_INICIAL } from '../sessao.js';
 import { validarEmail } from '../lib/validacao.js';
-import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '../ui.js';
-
-montarCabecalho();
+import { marcarErro, mostrarMensagem, ocupado } from '../ui.js';
 
 const form = document.getElementById('form-entrar');
 const mensagem = document.getElementById('mensagem');

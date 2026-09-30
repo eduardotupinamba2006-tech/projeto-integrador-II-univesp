@@ -5,10 +5,9 @@ import {
   arrecadacaoPorMes, arrecadacaoPorParoquia, contarSolicitacoes, somarArrecadacao,
 } from '../lib/arrecadacao.js';
 import { escaparHtml, formatarMoeda } from '../lib/formatacao.js';
-import { montarCabecalho, mostrarMensagem } from '../ui.js';
+import { mostrarMensagem } from '../ui.js';
 
 const perfil = await exigirPerfil(['diocesano']);
-montarCabecalho();
 
 const $ = (id) => document.getElementById(id);
 

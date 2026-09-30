@@ -71,3 +71,19 @@ Registro de decisões que divergem do Plano de Ação entregue e validado pela o
 - **Ícones:** Phosphor, peso light, carregados do jsDelivr com a versão fixada.
 - **Fotos:** a equipe fornece. Os espaços estão documentados em `img/LEIAME.md` e, sem as fotos, aparece um fundo tonal.
 - **Verificação:** o axe-core roda em todas as páginas, nos dois modos, dentro da suíte Playwright.
+
+## 8. VLibras
+
+O trecho de instalação que circula em tutoriais (com os `<div vw>` e `new window.VLibras.Widget(...)`) é da versão antiga. A versão 7 do script oficial, `https://vlibras.gov.br/app/vlibras-plugin.js`, monta o botão sozinha dentro de um shadow DOM quando a página carrega. Por isso basta carregar esse script. Ele entra pelo componente `<site-rodape>` (seção 9), e não por um trecho copiado em cada página. Um teste Playwright confere que o botão aparece nas páginas públicas, e o teste do axe-core continua sem violações com o widget presente.
+
+## 9. Cabeçalho e rodapé como componentes
+
+O cabeçalho (com o link "Pular para o conteúdo"), o rodapé e o script do VLibras eram repetidos no HTML das 11 páginas. Agora são dois componentes nativos do navegador (Custom Elements), `<site-cabecalho>` e `<site-rodape>`, definidos em `js/layout.js`. Não há framework nem etapa de build.
+
+- `js/layout.js` é um script clássico no `<head>`, sem `defer`. Assim, os componentes já estão definidos quando o navegador lê o `<body>`, e o cabeçalho aparece montado desde o início, sem piscar.
+- Os componentes escrevem no DOM normal, sem shadow DOM, para herdar o `css/estilo.css`. O CSS dá `display: contents` aos dois elementos, e o cabeçalho e o rodapé continuam se comportando como filhos diretos do `body` (layout flex e cabeçalho fixo no topo).
+- `<site-cabecalho>` chama `montarCabecalho()` de `js/ui.js`, que monta os links conforme o perfil logado. As páginas não chamam mais essa função. O atributo `sem-menu` tira a navegação da página de validação do QR Code.
+- `<site-rodape>` também carrega o VLibras.
+- Continua repetido em cada página só o `<head>` (título, fonte, ícones, CSS e `layout.js`), que sem build não tem como ser compartilhado.
+
+O custo é que o cabeçalho e o rodapé passam a depender de JavaScript. Todas as outras páginas do sistema já dependiam dele para funcionar, então não há perda prática.

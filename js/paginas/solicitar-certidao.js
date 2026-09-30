@@ -2,10 +2,9 @@ import { supabase } from '../supabase.js';
 import { chamarApi, exigirPerfil } from '../sessao.js';
 import { montarEscolhaParoquia } from '../escolha-paroquia.js';
 import { mostrarPix } from '../pix.js';
-import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '../ui.js';
+import { marcarErro, mostrarMensagem, ocupado } from '../ui.js';
 
 const perfil = await exigirPerfil(['publico']);
-montarCabecalho();
 
 const form = document.getElementById('form-solicitacao');
 const mensagem = document.getElementById('mensagem');
