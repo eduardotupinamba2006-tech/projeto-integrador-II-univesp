@@ -1,0 +1,18 @@
+{
+  "name": "certidoes-dizimo-paroquial",
+  "private": true,
+  "type": "module",
+  "description": "Ferramentas de desenvolvimento e teste. Nada aqui roda em produção.",
+  "scripts": {
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "supabase": "^2.118.0",
+    "vitest": "^5.0.2"
+  }
+}
