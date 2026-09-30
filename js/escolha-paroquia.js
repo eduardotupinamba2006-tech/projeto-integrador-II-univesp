@@ -76,7 +76,10 @@ export async function montarEscolhaParoquia(container, { legenda = 'Paróquia', 
     paroquias = ordenarPorProximidade(paroquias, origem);
     desenhar();
     status.textContent = `Paróquias ordenadas pela distância ${descricao}.`;
-    mapa?.mostrarOrigem(origem);
+    // O mapa enquadra o ponto de partida e até 3 paróquias a menos de 30 km (ou só a mais próxima).
+    const comDistancia = paroquias.filter((p) => p.distanciaKm != null);
+    const perto = comDistancia.filter((p) => p.distanciaKm <= 30).slice(0, 3);
+    mapa?.mostrarOrigem(origem, perto.length ? perto : comDistancia.slice(0, 1));
   }
 
   lista.addEventListener('change', (evento) => escolher(evento.target.value));
@@ -126,7 +129,13 @@ export async function montarEscolhaParoquia(container, { legenda = 'Paróquia', 
         return;
       }
       status.textContent = 'Procurando o endereço…';
-      const origem = await geocodificar(mapa.maps, texto);
+      let origem;
+      try {
+        origem = await geocodificar(mapa.maps, texto);
+      } catch {
+        status.textContent = 'A busca por endereço está indisponível no momento. Use a busca por nome ou "Mais próximas de mim".';
+        return;
+      }
       if (!origem) {
         status.textContent = 'Endereço não encontrado. Confira o texto ou tente o CEP.';
         return;
@@ -197,13 +206,15 @@ async function montarMapa(container, paroquias, { aoClicar, aoFalhar }) {
       const alvo = marcadores.get(id);
       if (alvo) mapa.panTo(alvo.posicao);
     },
-    mostrarOrigem(ponto) {
+    mostrarOrigem(ponto, proximas) {
       if (origem) origem.map = null;
       const pino = new PinElement({ background: '#ffffff', borderColor: '#1e3a8a', glyphColor: '#1e3a8a' });
-      origem = new AdvancedMarkerElement({ map: mapa, position: ponto, title: 'Ponto de partida', content: pino.element });
-      const area = new maps.LatLngBounds(limites.getSouthWest(), limites.getNorthEast());
-      area.extend(ponto);
-      mapa.fitBounds(area, 40);
+      // O ponto de partida só indica a posição: não pode cobrir o clique nos marcadores das paróquias.
+      pino.element.style.pointerEvents = 'none';
+      origem = new AdvancedMarkerElement({ map: mapa, position: ponto, title: 'Ponto de partida', content: pino.element, zIndex: -1 });
+      const area = new maps.LatLngBounds(ponto, ponto);
+      for (const p of proximas) area.extend(marcadores.get(p.id)?.posicao ?? ponto);
+      mapa.fitBounds(area, 60);
     },
   };
 }

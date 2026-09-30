@@ -33,7 +33,8 @@ export function carregarGoogleMaps(chave) {
   return carregamento;
 }
 
-// Converte um endereço ou CEP em coordenadas. Devolve null se nada for encontrado.
+// Converte um endereço ou CEP em coordenadas. Devolve null se nada for encontrado;
+// lança erro se o Google recusar ou falhar (chave sem a Geocoding API, cota, rede).
 export async function geocodificar(maps, endereco) {
   const { Geocoder } = await maps.importLibrary('geocoding');
   try {
@@ -41,7 +42,8 @@ export async function geocodificar(maps, endereco) {
     if (!results.length) return null;
     const local = results[0].geometry.location;
     return { lat: local.lat(), lng: local.lng(), descricao: results[0].formatted_address };
-  } catch {
-    return null;
+  } catch (erro) {
+    if (erro?.code === 'ZERO_RESULTS') return null;
+    throw erro;
   }
 }
