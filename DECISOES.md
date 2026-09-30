@@ -43,3 +43,13 @@ Registro de decisões que divergem do Plano de Ação entregue e validado pela o
 - Produção (funções Python): `fpdf2` (PDF da certidão) e `segno` (QR Code). As chamadas HTTP para Supabase, Mercado Pago e Resend usam a biblioteca padrão (`urllib`), sem SDK, e a assinatura do QR Code usa `hmac`.
 - Testes Python: `pytest` e `psycopg`.
 - Ferramentas de desenvolvimento (Node, nunca em produção): `vitest`, `@playwright/test`, `@axe-core/playwright` e a Supabase CLI (`supabase`).
+
+## 5. Backend: decisões da frente 2
+
+- **Data do registro:** 30/09/2026
+- **Taxa de emissão:** valor fixo de R$ 30,00 para qualquer sacramento, definido no servidor (`api/_lib/config.py`). O valor enviado pelo navegador é ignorado. O dízimo é cobrado pelo valor integral, sem taxa.
+- **Função extra `api/cobranca_pix.py`:** gerar a cobrança Pix exige o token secreto do Mercado Pago, então precisa rodar no servidor. Nenhuma das quatro funções previstas (pdf, webhook, email, validação) cobre essa etapa.
+- **PDFs no Storage:** bucket privado `certidoes`, um arquivo por solicitação em `{solicitante_id}/{solicitacao_id}.pdf`. Só o servidor grava; o solicitante lê a própria pasta. O email de aprovação leva um link assinado válido por 7 dias.
+- **Database Webhooks via Vault:** os gatilhos de email leem a URL da função e o segredo compartilhado do Vault de cada ambiente, então nada disso fica no repositório. Sem os segredos (Supabase local e CI), os gatilhos não fazem nada.
+- **QR Code:** aponta para `/validar.html?c=<id>.<assinatura HMAC-SHA256>`. A validação pública mostra só tipo, nome, data do sacramento, paróquia, diocese e data de emissão.
+- **Webhook do Mercado Pago:** valida o cabeçalho `x-signature` e sempre consulta o status real na API do Mercado Pago antes de alterar qualquer coisa. Confere também o valor e o id da transação.
