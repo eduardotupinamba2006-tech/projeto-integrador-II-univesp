@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validar certidão · Certidões e Dízimo</title>
+<link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <a class="marca" href="/">Certidões e Dízimo</a>
+  </div>
+</header>
+
+<main id="conteudo" class="estreito" tabindex="-1">
+  <h1>Validação de certidão</h1>
+  <div id="resultado" role="status" aria-live="polite">Verificando…</div>
+</main>
+
+<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<script type="module">
+  import { escaparHtml, formatarData, formatarDataHora, SACRAMENTOS } from '/js/lib/formatacao.js';
+
+  const resultado = document.getElementById('resultado');
+  const codigo = new URLSearchParams(location.search).get('c');
+
+  async function validar() {
+    if (!codigo) {
+      resultado.innerHTML = '<p class="mensagem mensagem-erro">Endereço de validação incompleto. Leia novamente o QR Code da certidão.</p>';
+      return;
+    }
+    let dados;
+    try {
+      const resposta = await fetch('/api/validar_qrcode?c=' + encodeURIComponent(codigo));
+      dados = await resposta.json();
+    } catch {
+      resultado.innerHTML = '<p class="mensagem mensagem-erro">Não foi possível verificar agora. Tente novamente em instantes.</p>';
+      return;
+    }
+    if (!dados.valida) {
+      resultado.innerHTML = '<p class="mensagem mensagem-erro"><strong>Certidão não reconhecida.</strong> Este código não corresponde a nenhuma certidão emitida pelo sistema.</p>';
+      return;
+    }
+    const c = dados.certidao;
+    resultado.innerHTML = `
+      <p class="mensagem mensagem-sucesso"><strong>Certidão autêntica.</strong> Confira se os dados abaixo são os mesmos do documento.</p>
+      <section class="cartao">
+        <dl class="detalhes">
+          <dt>Sacramento</dt><dd>${SACRAMENTOS[c.tipo] || escaparHtml(c.tipo)}</dd>
+          <dt>Nome</dt><dd>${escaparHtml(c.nome_pessoa)}</dd>
+          <dt>Data do sacramento</dt><dd>${formatarData(c.data_sacramento)}</dd>
+          <dt>Paróquia</dt><dd>${escaparHtml(c.paroquia)}</dd>
+          <dt>Diocese</dt><dd>${escaparHtml(c.diocese)}</dd>
+          <dt>Emitida em</dt><dd>${formatarDataHora(c.emitida_em)}</dd>
+        </dl>
+      </section>`;
+  }
+
+  validar();
+</script>
+</body>
+</html>

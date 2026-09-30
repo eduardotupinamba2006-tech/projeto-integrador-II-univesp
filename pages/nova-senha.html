@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova senha · Certidões e Dízimo</title>
+<link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <a class="marca" href="/">Certidões e Dízimo</a>
+    <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
+  </div>
+</header>
+
+<main id="conteudo" class="estreito" tabindex="-1">
+  <h1>Criar nova senha</h1>
+  <form id="form-nova-senha" class="cartao" novalidate>
+    <div class="campo">
+      <label for="senha">Nova senha</label>
+      <input type="password" id="senha" name="senha" autocomplete="new-password" required data-dica="senha-dica" aria-describedby="senha-dica">
+      <span class="dica" id="senha-dica">Pelo menos 8 caracteres.</span>
+    </div>
+    <div class="campo">
+      <label for="senha2">Confirme a nova senha</label>
+      <input type="password" id="senha2" name="senha2" autocomplete="new-password" required>
+    </div>
+    <button type="submit" class="botao">Salvar nova senha</button>
+    <div id="mensagem" class="mensagem" role="alert"></div>
+  </form>
+</main>
+
+<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<script type="module">
+  import { supabase } from '/js/supabase.js';
+  import { validarSenha } from '/js/lib/validacao.js';
+  import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '/js/ui.js';
+
+  montarCabecalho();
+  const form = document.getElementById('form-nova-senha');
+  const senha = document.getElementById('senha');
+  const senha2 = document.getElementById('senha2');
+  const mensagem = document.getElementById('mensagem');
+
+  // O link do email abre esta página com a sessão de recuperação; sem ela, não há o que trocar.
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) {
+    mostrarMensagem(mensagem, 'Link inválido ou expirado. Peça um novo link em "Esqueci minha senha".', 'erro');
+  }
+
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const validos = [
+      marcarErro(senha, validarSenha(senha.value) ? '' : 'A senha precisa ter pelo menos 8 caracteres.'),
+      marcarErro(senha2, senha.value === senha2.value ? '' : 'As senhas não conferem.'),
+    ];
+    if (validos.includes(false)) {
+      form.querySelector('[aria-invalid="true"]').focus();
+      return;
+    }
+    const botao = form.querySelector('button[type="submit"]');
+    ocupado(botao, true, 'Salvando…');
+    const { error } = await supabase.auth.updateUser({ password: senha.value });
+    ocupado(botao, false);
+    if (error) {
+      mostrarMensagem(mensagem, 'Não foi possível trocar a senha: ' + error.message, 'erro');
+      return;
+    }
+    form.reset();
+    mostrarMensagem(mensagem, 'Senha alterada. Você já está conectado.', 'sucesso');
+  });
+</script>
+</body>
+</html>

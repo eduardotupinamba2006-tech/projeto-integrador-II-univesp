@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · Certidões e Dízimo</title>
+<link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <a class="marca" href="/">Certidões e Dízimo</a>
+    <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
+  </div>
+</header>
+
+<main id="conteudo" class="estreito" tabindex="-1">
+  <h1>Entrar</h1>
+  <form id="form-entrar" class="cartao" novalidate>
+    <div class="campo">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="email" required>
+    </div>
+    <div class="campo">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="botao">Entrar</button>
+    <div id="mensagem" class="mensagem" role="alert"></div>
+  </form>
+  <p><a href="/pages/recuperar-senha.html">Esqueci minha senha</a></p>
+  <p>Ainda não tem conta? <a href="/pages/cadastro.html">Criar conta</a></p>
+</main>
+
+<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<script type="module" src="/js/paginas/entrar.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel da paróquia · Certidões e Dízimo</title>
+<link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <a class="marca" href="/">Certidões e Dízimo</a>
+    <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
+  </div>
+</header>
+
+<main id="conteudo" tabindex="-1">
+  <h1>Painel da paróquia <span id="nome-paroquia"></span></h1>
+  <nav aria-label="Seções do painel">
+    <ul class="acoes">
+      <li><a href="#fila">Fila de solicitações</a></li>
+      <li><a href="#registros">Registros sacramentais</a></li>
+      <li><a href="#arrecadacao">Arrecadação</a></li>
+    </ul>
+  </nav>
+  <div id="mensagem" class="mensagem" role="status" aria-live="polite"></div>
+
+  <!-- Fila -->
+  <section id="fila" class="cartao" aria-labelledby="titulo-fila">
+    <h2 id="titulo-fila">Fila de solicitações em análise</h2>
+    <div class="tabela-rolagem">
+      <table>
+        <caption class="visualmente-oculto">Solicitações pagas aguardando análise</caption>
+        <thead>
+          <tr>
+            <th scope="col">Pedido em</th>
+            <th scope="col">Sacramento</th>
+            <th scope="col">Nome declarado</th>
+            <th scope="col">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="lista-fila"><tr><td colspan="4">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="analise" class="cartao" aria-labelledby="titulo-analise" hidden>
+    <h2 id="titulo-analise" tabindex="-1">Analisar solicitação</h2>
+    <h3>O que o solicitante informou</h3>
+    <dl class="detalhes" id="dados-declarados"></dl>
+
+    <h3>Buscar no livro de registros</h3>
+    <form id="form-busca-vinculo" class="acoes" role="search">
+      <label for="busca-vinculo" class="visualmente-oculto">Nome no registro</label>
+      <input type="search" id="busca-vinculo" placeholder="Nome no registro">
+      <button type="submit" class="botao botao-secundario">Buscar</button>
+    </form>
+    <div class="tabela-rolagem">
+      <table>
+        <caption class="visualmente-oculto">Registros encontrados para vincular</caption>
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Data</th>
+            <th scope="col">Livro / folha / número</th>
+            <th scope="col">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="lista-vinculo"></tbody>
+      </table>
+    </div>
+
+    <h3>Registro não encontrado</h3>
+    <form id="form-rejeitar" novalidate>
+      <div class="campo">
+        <label for="motivo">Motivo da rejeição</label>
+        <textarea id="motivo" required data-dica="motivo-dica" aria-describedby="motivo-dica"></textarea>
+        <span class="dica" id="motivo-dica">Obrigatório. O solicitante recebe este texto por email.</span>
+      </div>
+      <div class="acoes">
+        <button type="submit" class="botao botao-perigo">Rejeitar solicitação</button>
+        <button type="button" class="botao botao-secundario" id="fechar-analise">Voltar para a fila</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Registros -->
+  <section id="registros" class="cartao" aria-labelledby="titulo-registros">
+    <h2 id="titulo-registros">Registros sacramentais</h2>
+    <form id="form-filtro-registros" class="acoes" role="search">
+      <label for="filtro-nome" class="visualmente-oculto">Nome</label>
+      <input type="search" id="filtro-nome" placeholder="Nome">
+      <label for="filtro-tipo" class="visualmente-oculto">Sacramento</label>
+      <select id="filtro-tipo">
+        <option value="">Todos os sacramentos</option>
+        <option value="batismo">Batismo</option>
+        <option value="primeira_comunhao">Primeira Comunhão</option>
+        <option value="crisma">Crisma</option>
+        <option value="casamento">Casamento</option>
+        <option value="ordenacao">Ordenação</option>
+      </select>
+      <button type="submit" class="botao botao-secundario">Filtrar</button>
+      <button type="button" class="botao" id="novo-registro">Novo registro</button>
+    </form>
+    <div class="tabela-rolagem">
+      <table>
+        <caption class="visualmente-oculto">Registros da paróquia</caption>
+        <thead>
+          <tr>
+            <th scope="col">Nome</th>
+            <th scope="col">Sacramento</th>
+            <th scope="col">Data</th>
+            <th scope="col">Livro / folha / número</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista-registros"></tbody>
+      </table>
+    </div>
+
+    <form id="form-registro" class="cartao" hidden novalidate aria-labelledby="titulo-form-registro">
+      <h3 id="titulo-form-registro" tabindex="-1">Novo registro</h3>
+      <input type="hidden" id="registro-id">
+      <div class="campo">
+        <label for="r-tipo">Sacramento</label>
+        <select id="r-tipo" required>
+          <option value="batismo">Batismo</option>
+          <option value="primeira_comunhao">Primeira Comunhão</option>
+          <option value="crisma">Crisma</option>
+          <option value="casamento">Casamento</option>
+          <option value="ordenacao">Ordenação</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="r-nome">Nome</label>
+        <input type="text" id="r-nome" required>
+      </div>
+      <div class="campo">
+        <label for="r-data">Data do sacramento</label>
+        <input type="date" id="r-data" required>
+      </div>
+      <div class="grade-cartoes">
+        <div class="campo"><label for="r-livro">Livro</label><input type="text" id="r-livro"></div>
+        <div class="campo"><label for="r-folha">Folha</label><input type="text" id="r-folha"></div>
+        <div class="campo"><label for="r-numero">Número</label><input type="text" id="r-numero"></div>
+      </div>
+      <div class="campo">
+        <label for="r-celebrante">Celebrante</label>
+        <input type="text" id="r-celebrante">
+      </div>
+      <div class="campo">
+        <label for="r-padrinhos">Padrinhos ou testemunhas</label>
+        <input type="text" id="r-padrinhos">
+      </div>
+      <div class="acoes">
+        <button type="submit" class="botao">Salvar registro</button>
+        <button type="button" class="botao botao-secundario" id="cancelar-registro">Cancelar</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Arrecadação -->
+  <section id="arrecadacao" class="cartao" aria-labelledby="titulo-arrecadacao">
+    <h2 id="titulo-arrecadacao">Arrecadação da paróquia</h2>
+    <div class="grade-cartoes">
+      <div class="indicador"><h3>Dízimos</h3><p id="total-dizimo">…</p></div>
+      <div class="indicador"><h3>Taxas de certidão</h3><p id="total-taxa">…</p></div>
+      <div class="indicador"><h3>Total</h3><p id="total-geral">…</p></div>
+    </div>
+    <div class="tabela-rolagem">
+      <table>
+        <caption>Arrecadação mensal (pagamentos confirmados)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Mês</th>
+            <th scope="col" class="numero">Dízimos</th>
+            <th scope="col" class="numero">Taxas</th>
+            <th scope="col" class="numero">Total</th>
+          </tr>
+        </thead>
+        <tbody id="lista-mensal"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<script type="module" src="/js/paginas/painel-paroquial.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recuperar senha · Certidões e Dízimo</title>
+<link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <a class="marca" href="/">Certidões e Dízimo</a>
+    <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
+  </div>
+</header>
+
+<main id="conteudo" class="estreito" tabindex="-1">
+  <h1>Recuperar senha</h1>
+  <form id="form-recuperar" class="cartao" novalidate>
+    <p>Informe o email da sua conta. Enviaremos um link para você criar uma nova senha.</p>
+    <div class="campo">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" autocomplete="email" required>
+    </div>
+    <button type="submit" class="botao">Enviar link</button>
+    <div id="mensagem" class="mensagem" role="alert"></div>
+  </form>
+  <p><a href="/pages/entrar.html">Voltar para entrar</a></p>
+</main>
+
+<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<script type="module">
+  import { supabase } from '/js/supabase.js';
+  import { validarEmail } from '/js/lib/validacao.js';
+  import { marcarErro, montarCabecalho, mostrarMensagem, ocupado } from '/js/ui.js';
+
+  montarCabecalho();
+  const form = document.getElementById('form-recuperar');
+  const email = document.getElementById('email');
+  const mensagem = document.getElementById('mensagem');
+
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    if (!marcarErro(email, validarEmail(email.value) ? '' : 'Informe um email válido.')) {
+      email.focus();
+      return;
+    }
+    const botao = form.querySelector('button[type="submit"]');
+    ocupado(botao, true, 'Enviando…');
+    const { error } = await supabase.auth.resetPasswordForEmail(email.value.trim(), {
+      redirectTo: location.origin + '/pages/nova-senha.html',
+    });
+    ocupado(botao, false);
+    if (error) {
+      mostrarMensagem(mensagem, 'Não foi possível enviar agora. Tente novamente em alguns minutos.', 'erro');
+      return;
+    }
+    // Mesma resposta exista ou não a conta, para não revelar quais emails estão cadastrados.
+    mostrarMensagem(mensagem, 'Se houver uma conta com esse email, você receberá o link em instantes.', 'sucesso');
+  });
+</script>
+</body>
+</html>

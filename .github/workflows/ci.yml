@@ -54,3 +54,19 @@ jobs:
 
       - name: Testes das funções
         run: pytest tests/pytest -m "not rls" -v
+
+  frontend:
+    name: Frontend (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Testes de JavaScript puro
+        run: npx vitest run

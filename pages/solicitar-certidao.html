@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitar certidão · Certidões e Dízimo</title>
+<link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <a class="marca" href="/">Certidões e Dízimo</a>
+    <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
+  </div>
+</header>
+
+<main id="conteudo" tabindex="-1">
+  <h1>Solicitar certidão</h1>
+  <p>A paróquia vai procurar o registro no livro oficial. A certidão é emitida com os dados do livro, não com os dados que você informar aqui: eles só ajudam na busca.</p>
+  <p class="mensagem mensagem-aviso">A taxa de emissão de <strong id="valor-taxa">R$ 30,00</strong> cobre o trabalho de busca. Se o registro não for localizado, a taxa não é reembolsada.</p>
+
+  <form id="form-solicitacao" class="cartao" novalidate>
+    <fieldset>
+      <legend>Sacramento</legend>
+      <label class="opcao"><input type="radio" name="tipo" value="batismo" required> Batismo</label>
+      <label class="opcao"><input type="radio" name="tipo" value="primeira_comunhao"> Primeira Comunhão</label>
+      <label class="opcao"><input type="radio" name="tipo" value="crisma"> Crisma</label>
+      <label class="opcao"><input type="radio" name="tipo" value="casamento"> Casamento</label>
+      <label class="opcao"><input type="radio" name="tipo" value="ordenacao"> Ordenação</label>
+    </fieldset>
+
+    <div id="escolha-paroquia"></div>
+
+    <fieldset>
+      <legend>O que você lembra do sacramento</legend>
+      <div class="campo">
+        <label for="nome_pessoa">Nome de quem recebeu o sacramento</label>
+        <input type="text" id="nome_pessoa" name="nome_pessoa" required data-dica="nome-dica" aria-describedby="nome-dica">
+        <span class="dica" id="nome-dica">No casamento, informe o nome dos noivos.</span>
+      </div>
+      <div class="campo">
+        <label for="data_aproximada">Data ou ano aproximado</label>
+        <input type="text" id="data_aproximada" name="data_aproximada" data-dica="data-dica" aria-describedby="data-dica">
+        <span class="dica" id="data-dica">Por exemplo: 12/03/1995, março de 1995 ou 1995.</span>
+      </div>
+      <div class="campo">
+        <label for="filiacao">Nome dos pais</label>
+        <input type="text" id="filiacao" name="filiacao">
+      </div>
+      <div class="campo">
+        <label for="observacoes">Outras informações que ajudem a encontrar o registro</label>
+        <textarea id="observacoes" name="observacoes"></textarea>
+      </div>
+    </fieldset>
+
+    <button type="submit" class="botao">Confirmar pedido e gerar Pix</button>
+    <div id="mensagem" class="mensagem" role="alert"></div>
+  </form>
+
+  <div id="pix" hidden></div>
+</main>
+
+<footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>
+<script type="module" src="/js/paginas/solicitar-certidao.js"></script>
+</body>
+</html>

@@ -39,7 +39,7 @@ def processar(perfil, corpo):
     diocese = supabase.selecionar_um("dioceses", {"id": "eq." + paroquia["diocese_id"], "select": "*"})
 
     agora = datetime.now(timezone.utc)
-    url_validacao = "{}/validar.html?c={}".format(config.site_url(), token_qr.gerar(sid))
+    url_validacao = "{}/pages/validar.html?c={}".format(config.site_url(), token_qr.gerar(sid))
     conteudo = certidao_pdf.gerar_pdf(registro, paroquia, diocese, url_validacao, emitida_em=agora)
 
     # Primeiro o arquivo, depois o status: o email de aprovação já encontra o PDF.
