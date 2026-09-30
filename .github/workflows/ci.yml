@@ -20,12 +20,14 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: requirements-dev.txt
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Instalar dependências
         run: |
           npm ci
-          pip install -r requirements-dev.txt
+          pip install -r requirements.txt -r requirements-dev.txt
 
       - name: Subir Supabase local (aplica migrations e seed)
         run: npx supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor
