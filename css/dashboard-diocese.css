@@ -1,27 +1,18 @@
 /* Painel Diocesano: complementa css/estilo.css. Seletores com escopo para não afetar o layout comum. */
 
-.painel-diocese h1 {
-    text-align: center;
-}
-
 .painel-diocese .indicadores {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
 }
 
-.painel-diocese .indicadores .indicador {
-    width: 300px;
-    min-height: 120px;
+/* Os dois totais em dinheiro ganham mais destaque que as contagens. */
+.painel-diocese .indicadores .indicador:nth-child(n + 4) {
+    background: var(--acento-suave);
+    border-color: transparent;
 }
 
-.painel-diocese .indicador h2 {
-    color: #333333;
-}
-
-.painel-diocese .indicador p {
-    font-size: 24px;
-    text-align: center;
+.painel-diocese .indicadores .indicador:nth-child(n + 4) p {
+    color: var(--acento-texto);
 }

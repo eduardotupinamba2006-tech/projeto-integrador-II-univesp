@@ -69,12 +69,13 @@ export async function montarCabecalho() {
 
 export function ocupado(botao, estaOcupado, textoOcupado = 'Aguarde…') {
   if (estaOcupado) {
-    botao.dataset.textoOriginal = botao.textContent;
+    // Guarda o HTML (não só o texto) para devolver o ícone do botão depois.
+    if (!botao.hasAttribute('aria-busy')) botao.dataset.htmlOriginal = botao.innerHTML;
     botao.textContent = textoOcupado;
     botao.disabled = true;
     botao.setAttribute('aria-busy', 'true');
   } else {
-    botao.textContent = botao.dataset.textoOriginal || botao.textContent;
+    if (botao.dataset.htmlOriginal) botao.innerHTML = botao.dataset.htmlOriginal;
     botao.disabled = false;
     botao.removeAttribute('aria-busy');
   }

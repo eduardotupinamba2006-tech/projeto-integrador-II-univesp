@@ -61,3 +61,13 @@ Registro de decisões que divergem do Plano de Ação entregue e validado pela o
 - **`/api/config`:** a URL do Supabase e a chave publicável são públicas por natureza, mas mudam entre preview e produção. Como não há etapa de build, o navegador lê esses valores de `/api/config`, que devolve só o que pode ir para o navegador.
 - **Servidor de desenvolvimento:** `scripts/servidor_dev.py` (biblioteca padrão do Python) serve as páginas e as funções localmente, lendo `.env.local`, que não é versionado. Existe porque o CLI da Vercel não faz parte da stack. Nunca roda em produção.
 - **Login obrigatório para certidão e dízimo:** `solicitacoes_certidao.solicitante_id` e `pagamentos.usuario_id` são obrigatórios e apontam para `perfis`, então quem pede ou doa precisa ter conta. "Com ou sem cadastro como dizimista" se refere ao cadastro em `dizimistas`, que é opcional.
+
+## 7. Identidade visual
+
+- **Data do registro:** 30/09/2026
+- **Direção:** serviço institucional de confiança, sóbrio e acolhedor, para paroquianos de todas as idades. O azul-cobalto (`#1e3a8a`) que a equipe já usava continua como cor única de destaque, sobre neutros frios. O modo claro e o escuro seguem automaticamente a preferência do sistema.
+- **Calibragem:** assimetria 4, movimento 3 e densidade 4, numa escala de 1 a 10. É mais contido que o padrão das skills de design usadas (8/6/4), porque o público inclui idosos e pessoas surdas e o sistema tem formulários e painéis. A animação se resume a transições curtas e a uma entrada suave do conteúdo, e é desligada com `prefers-reduced-motion`.
+- **Fonte:** Outfit (licença OFL), hospedada em `/fonts`, sem chamadas ao Google em produção.
+- **Ícones:** Phosphor, peso light, carregados do jsDelivr com a versão fixada.
+- **Fotos:** a equipe fornece. Os espaços estão documentados em `img/LEIAME.md` e, sem as fotos, aparece um fundo tonal.
+- **Verificação:** o axe-core roda em todas as páginas, nos dois modos, dentro da suíte Playwright.

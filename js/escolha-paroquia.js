@@ -12,7 +12,7 @@ export async function montarEscolhaParoquia(container, { legenda = 'Paróquia', 
         <input type="search" id="busca-paroquia" autocomplete="off">
       </div>
       <div class="acoes">
-        <button type="button" class="botao botao-secundario" id="usar-localizacao">Ordenar pelas mais próximas de mim</button>
+        <button type="button" class="botao botao-secundario" id="usar-localizacao"><i class="ph-light ph-navigation-arrow" aria-hidden="true"></i>Mais próximas de mim</button>
       </div>
       <p class="dica" id="status-paroquias" role="status" aria-live="polite"></p>
       <div class="lista-paroquias" id="lista-paroquias"></div>

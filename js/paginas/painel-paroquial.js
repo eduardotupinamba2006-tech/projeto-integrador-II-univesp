@@ -15,7 +15,7 @@ let emAnalise = null;
 const { data: paroquia } = await supabase.from('paroquias').select('nome').eq('id', perfil.paroquia_id).single();
 $('nome-paroquia').textContent = paroquia ? `· ${paroquia.nome}` : '';
 
-const referencia = (r) => [r.livro, r.folha, r.numero].map((v) => escaparHtml(v || '–')).join(' / ');
+const referencia = (r) => [r.livro, r.folha, r.numero].map((v) => escaparHtml(v || '-')).join(' / ');
 
 // ---------------------------------------------------------------- Fila
 
@@ -58,7 +58,7 @@ function abrirAnalise(solicitacao) {
   const dados = solicitacao.dados_declarados || {};
   $('titulo-analise').textContent = `Analisar solicitação de ${SACRAMENTOS[solicitacao.tipo].toLowerCase()}`;
   $('dados-declarados').innerHTML = Object.entries(ROTULOS_DECLARADOS)
-    .map(([chave, rotulo]) => `<dt>${rotulo}</dt><dd>${escaparHtml(dados[chave] || '–')}</dd>`)
+    .map(([chave, rotulo]) => `<dt>${rotulo}</dt><dd>${escaparHtml(dados[chave] || 'Não informado')}</dd>`)
     .join('');
   $('busca-vinculo').value = dados.nome_pessoa || '';
   $('motivo').value = '';

@@ -3,40 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>Certidões e Dízimo Paroquial</title>
+<link rel="preload" href="/fonts/outfit-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
 <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
 <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 <header class="cabecalho">
   <div class="cabecalho-conteudo">
-    <a class="marca" href="/">Certidões e Dízimo</a>
+    <a class="marca" href="/"><i class="ph-light ph-church" aria-hidden="true"></i>Certidões e Dízimo</a>
     <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
   </div>
 </header>
 
 <main id="conteudo" tabindex="-1">
-  <h1>Certidões sacramentais e dízimo</h1>
-  <p>Peça a certidão do seu sacramento à paróquia onde ele foi celebrado, ou contribua com o dízimo da sua comunidade.</p>
+  <section class="inicio-hero" aria-labelledby="titulo-inicio">
+    <div>
+      <h1 id="titulo-inicio">Sua certidão de sacramento, <em>direto da paróquia.</em></h1>
+      <p>Peça a certidão de batismo, crisma ou casamento e contribua com o dízimo da sua comunidade, tudo por Pix.</p>
+      <div class="acoes">
+        <a class="botao botao-com-icone" href="/pages/solicitar-certidao.html">
+          Solicitar certidão
+          <span class="icone-capsula"><i class="ph-light ph-arrow-right" aria-hidden="true"></i></span>
+        </a>
+        <a class="botao botao-secundario" href="/pages/dizimo.html">Contribuir com o dízimo</a>
+      </div>
+    </div>
+    <!-- Foto: /img/inicio.jpg (vertical, 1200x1500). Sem o arquivo, aparece o fundo tonal. -->
+    <div class="foto" aria-hidden="true">
+      <div class="foto-miolo" style="--imagem: url('/img/inicio.jpg')"></div>
+    </div>
+  </section>
 
-  <div class="grade-cartoes">
-    <section class="cartao" aria-labelledby="titulo-certidao">
-      <h2 id="titulo-certidao">Certidão de sacramento</h2>
-      <p>Batismo, primeira comunhão, crisma, casamento ou ordenação. A paróquia busca o registro no livro oficial e emite a certidão em PDF.</p>
-      <a class="botao" href="/pages/solicitar-certidao.html">Solicitar certidão</a>
-    </section>
+  <section class="servicos" aria-label="Serviços">
+    <article class="servico servico-certidao">
+      <!-- Foto: /img/certidao.jpg (horizontal, 1600x700), por exemplo um livro de registros. -->
+      <div class="foto-miolo" style="--imagem: url('/img/certidao.jpg')" aria-hidden="true"></div>
+      <div class="servico-corpo">
+        <h2>Certidão emitida a partir do livro oficial</h2>
+        <p>A paróquia procura o seu registro no livro de sacramentos e emite a certidão em PDF, com QR Code de autenticidade.</p>
+        <a class="botao" href="/pages/solicitar-certidao.html">Solicitar certidão</a>
+      </div>
+    </article>
 
-    <section class="cartao" aria-labelledby="titulo-dizimo">
-      <h2 id="titulo-dizimo">Dízimo</h2>
-      <p>Contribua com a paróquia que você escolher, por Pix. O valor vai integralmente para a paróquia.</p>
-      <a class="botao" href="/pages/dizimo.html">Contribuir</a>
-    </section>
+    <article class="servico servico-dizimo">
+      <div class="servico-corpo">
+        <i class="ph-light ph-hand-heart servico-icone" aria-hidden="true"></i>
+        <h2>Dízimo sem taxa</h2>
+        <p>Escolha a paróquia, informe o valor e pague por Pix. O valor vai integralmente para a comunidade.</p>
+        <a class="botao" href="/pages/dizimo.html">Contribuir com o dízimo</a>
+      </div>
+    </article>
 
-    <section class="cartao" aria-labelledby="titulo-validar">
-      <h2 id="titulo-validar">Validar certidão</h2>
-      <p>Recebeu uma certidão? Leia o QR Code impresso nela para conferir se é autêntica.</p>
-    </section>
-  </div>
+    <article class="servico servico-validar">
+      <i class="ph-light ph-seal-check servico-icone" aria-hidden="true"></i>
+      <div>
+        <h2>Recebeu uma certidão?</h2>
+        <p>Leia o QR Code impresso no documento para confirmar que ele foi emitido pela paróquia.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="como-funciona" aria-labelledby="titulo-como">
+    <h2 id="titulo-como">Como funciona o pedido de certidão</h2>
+    <ol>
+      <li><strong>Peça</strong><span>Escolha o sacramento, a paróquia e conte o que lembra da celebração.</span></li>
+      <li><strong>Pague a taxa</strong><span>R$ 30,00 por Pix. A taxa cobre a busca no livro de registros.</span></li>
+      <li><strong>A paróquia confere</strong><span>A secretaria localiza o registro original e confirma os dados.</span></li>
+      <li><strong>Receba o PDF</strong><span>Você recebe um email com o link para baixar a certidão.</span></li>
+    </ol>
+  </section>
 </main>
 
 <footer class="rodape">Projeto Integrador II, UNIVESP. Todos os dados de demonstração são fictícios.</footer>

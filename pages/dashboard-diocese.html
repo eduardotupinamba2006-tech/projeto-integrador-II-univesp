@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Painel Diocesano · Certidões e Dízimo</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preload" href="/fonts/outfit-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
 <link rel="stylesheet" href="/css/estilo.css">
 <link rel="stylesheet" href="/css/dashboard-diocese.css">
 </head>
@@ -11,14 +14,14 @@
 <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 <header class="cabecalho">
   <div class="cabecalho-conteudo">
-    <a class="marca" href="/">Certidões e Dízimo</a>
+    <a class="marca" href="/"><i class="ph-light ph-church" aria-hidden="true"></i>Certidões e Dízimo</a>
     <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
   </div>
 </header>
 
 <main id="conteudo" class="painel-diocese" tabindex="-1">
   <h1>Painel Diocesano <span id="nome-diocese"></span></h1>
-  <p class="dica">Leitura consolidada das paróquias da diocese. Os registros de cada paróquia são mantidos pela própria paróquia.</p>
+  <p class="introducao">Leitura consolidada das paróquias da diocese. Os registros de cada paróquia são mantidos pela própria paróquia.</p>
   <div id="mensagem" class="mensagem" role="status" aria-live="polite"></div>
 
   <section class="indicadores" aria-label="Indicadores da diocese">

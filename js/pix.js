@@ -12,7 +12,7 @@ export function mostrarPix(container, pix, textoApos) {
         <textarea id="pix-copia-cola" readonly rows="4">${escaparHtml(pix.qr_code || '')}</textarea>
       </div>
       <div class="acoes">
-        <button type="button" class="botao" id="copiar-pix">Copiar código Pix</button>
+        <button type="button" class="botao" id="copiar-pix"><i class="ph-light ph-copy" aria-hidden="true"></i>Copiar código Pix</button>
         <span id="pix-copiado" role="status" aria-live="polite"></span>
       </div>
       <p>${escaparHtml(textoApos)}</p>

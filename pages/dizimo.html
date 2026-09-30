@@ -4,20 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dízimo · Certidões e Dízimo</title>
+<meta name="color-scheme" content="light dark">
+<link rel="preload" href="/fonts/outfit-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
 <link rel="stylesheet" href="/css/estilo.css">
 </head>
 <body>
 <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
 <header class="cabecalho">
   <div class="cabecalho-conteudo">
-    <a class="marca" href="/">Certidões e Dízimo</a>
+    <a class="marca" href="/"><i class="ph-light ph-church" aria-hidden="true"></i>Certidões e Dízimo</a>
     <nav class="nav-principal" id="nav-principal" aria-label="Principal"><ul></ul></nav>
   </div>
 </header>
 
-<main id="conteudo" tabindex="-1">
+<main id="conteudo" class="formulario" tabindex="-1">
   <h1>Dízimo</h1>
-  <p>O valor informado vai integralmente para a paróquia escolhida. O sistema não cobra nenhuma taxa sobre o dízimo.</p>
+  <p class="introducao">O valor informado vai integralmente para a paróquia escolhida. O sistema não cobra nenhuma taxa sobre o dízimo.</p>
 
   <form id="form-dizimo" class="cartao" novalidate>
     <div id="escolha-paroquia"></div>
@@ -33,7 +36,7 @@
       <span>Quero me cadastrar como dizimista desta paróquia <span class="dica" id="situacao-dizimista"></span></span>
     </label>
 
-    <button type="submit" class="botao">Gerar Pix</button>
+    <button type="submit" class="botao"><i class="ph-light ph-qr-code" aria-hidden="true"></i>Gerar Pix</button>
     <div id="mensagem" class="mensagem" role="alert"></div>
   </form>
 

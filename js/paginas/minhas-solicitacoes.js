@@ -12,10 +12,10 @@ const mensagem = document.getElementById('mensagem');
 
 function acoes(s) {
   if (s.status === 'aguardando_pagamento') {
-    return `<button type="button" class="botao" data-pagar="${s.id}">Gerar Pix</button>`;
+    return `<button type="button" class="botao" data-pagar="${s.id}"><i class="ph-light ph-qr-code" aria-hidden="true"></i>Gerar Pix</button>`;
   }
   if (s.status === 'aprovado') {
-    return `<button type="button" class="botao" data-baixar="${s.id}">Baixar certidão (PDF)</button>`;
+    return `<button type="button" class="botao" data-baixar="${s.id}"><i class="ph-light ph-download-simple" aria-hidden="true"></i>Baixar PDF</button>`;
   }
   if (s.status === 'rejeitado') {
     return `<strong>Motivo:</strong> ${escaparHtml(s.motivo_rejeicao)}`;
