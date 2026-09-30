@@ -1,0 +1,12 @@
+# Arquivos de desenvolvimento que não devem ser publicados no site.
+tests/
+supabase/
+scripts/
+docs/
+.github/
+.claude/
+.mcp.json
+playwright.config.js
+vitest.config.js
+requirements-dev.txt
+.env*
