@@ -32,4 +32,5 @@ def email_pagador_teste():
     Mercado Pago recusa, e com ele o Pix de teste é aprovado automaticamente.
     Ao sair do sandbox, a variável é removida e vale o email real de quem paga.
     """
-    return os.environ.get("MP_EMAIL_PAGADOR_TESTE") or None
+    # Espaços ou aspas colados junto com o valor no painel fazem o Mercado Pago recusar o email.
+    return (os.environ.get("MP_EMAIL_PAGADOR_TESTE") or "").strip().strip('"'').strip() or None
