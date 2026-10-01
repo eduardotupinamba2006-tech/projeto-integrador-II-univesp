@@ -33,4 +33,4 @@ def email_pagador_teste():
     Ao sair do sandbox, a variável é removida e vale o email real de quem paga.
     """
     # Espaços ou aspas colados junto com o valor no painel fazem o Mercado Pago recusar o email.
-    return (os.environ.get("MP_EMAIL_PAGADOR_TESTE") or "").strip().strip('"'').strip() or None
+    return (os.environ.get("MP_EMAIL_PAGADOR_TESTE") or "").strip().strip("\"'").strip() or None
