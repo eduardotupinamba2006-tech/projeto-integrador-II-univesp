@@ -18,7 +18,7 @@ A regra central é que a certidão sai sempre do registro oficial da paróquia, 
 | Páginas | HTML, CSS e JavaScript puro, sem framework e sem etapa de build |
 | Funções de servidor | Python, como funções serverless da Vercel |
 | Banco, login e arquivos | Supabase (Postgres com Row Level Security, Auth e Storage) |
-| Pagamento | Pix pela API do Mercado Pago (sandbox) |
+| Pagamento | Pix pela API de Orders do Mercado Pago (sandbox) |
 | Email | Resend |
 | Geração de PDF | `fpdf2` e `segno` (QR Code) |
 | Testes | Vitest, pytest, Playwright com axe-core |
@@ -102,8 +102,8 @@ As funções ficam em `api/`. Cada arquivo vira um endpoint na Vercel. Elas cham
 
 | Endpoint | O que faz |
 |---|---|
-| `POST /api/cobranca_pix` | Gera a cobrança Pix de uma taxa de certidão ou de um dízimo. A taxa é fixa em R$ 30,00, definida no servidor, e o valor enviado pelo navegador é ignorado. O dízimo é cobrado pelo valor integral, entre R$ 1,00 e R$ 100.000,00. Se o pedido já tem uma cobrança pendente, a função devolve a mesma cobrança em vez de criar outra. |
-| `POST /api/webhook_pagamento` | Recebe a notificação do Mercado Pago. Confere a assinatura `x-signature` e consulta o pagamento na API do Mercado Pago antes de mudar qualquer coisa. Confere também o valor e o id da transação. Com o pagamento aprovado, marca `pagamentos` como pago. Se for uma taxa, move o pedido para "em análise"; se for um dízimo de um dizimista cadastrado, cria a doação. Notificações repetidas não duplicam nada. |
+| `POST /api/cobranca_pix` | Gera a cobrança Pix de uma taxa de certidão ou de um dízimo. A taxa é fixa em R$ 30,00, definida no servidor, e o valor enviado pelo navegador é ignorado. O dízimo é cobrado pelo valor integral, entre R$ 1,00 e R$ 100.000,00. Se o pedido já tem uma cobrança pendente, a função devolve a mesma cobrança em vez de criar outra. No sandbox, o Pix vai com o comprador de teste e é aprovado sozinho em alguns segundos. |
+| `POST /api/webhook_pagamento` | Recebe a notificação de order do Mercado Pago. Confere a assinatura `x-signature` e consulta a order na API do Mercado Pago antes de mudar qualquer coisa. Confere também o valor e o id da transação. Com o pagamento aprovado, marca `pagamentos` como pago. Se for uma taxa, move o pedido para "em análise"; se for um dízimo de um dizimista cadastrado, cria a doação. Notificações repetidas não duplicam nada. |
 | `POST /api/pdf` | Usada pela secretaria da paróquia. Confere se o pedido é da paróquia dela, se está em análise e se o registro escolhido é do mesmo sacramento e da mesma paróquia. Gera o PDF a partir do registro oficial, grava no bucket `certidoes` e marca o pedido como aprovado. |
 | `GET /api/validar_qrcode?c=...` | Endpoint público de autenticidade. O código do QR é o id do pedido mais uma assinatura HMAC-SHA256. A função devolve se a certidão é válida e, nesse caso, o sacramento, o nome, a data, a paróquia, a diocese e a data de emissão. |
 | `POST /api/enviar_email` | Chamada pelos gatilhos do banco. Escolhe o email certo, envia pelo Resend e grava toda tentativa em `emails_enviados`, com sucesso ou falha. |
@@ -171,7 +171,7 @@ As fotos ficam em `img/`. O arquivo [`img/LEIAME.md`](../img/LEIAME.md) diz quai
 
 Os testes de RLS abrem uma transação, criam os próprios dados, simulam cada papel e desfazem tudo no fim. Assim, não dependem do seed. Quando o banco não está disponível, eles são pulados localmente, mas falham no CI, para que o CI nunca fique verde sem ter testado de verdade.
 
-No teste de ponta a ponta da certidão, o pagamento entra como dado semeado pelo próprio teste, porque um Pix do sandbox não pode ser pago automaticamente. O fluxo testado começa com o pedido já pago e vai até a validação do QR Code.
+No teste de ponta a ponta da certidão, o pagamento entra como dado semeado pelo próprio teste, para não depender do Mercado Pago. O fluxo testado começa com o pedido já pago e vai até a validação do QR Code. O Pix real do sandbox, aprovado automaticamente, foi conferido à parte no site publicado.
 
 ## Integração contínua
 
@@ -237,7 +237,7 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 
 As integrações externas dependem de contas e chaves que a equipe precisa criar. Ninguém deve colocar essas chaves no repositório nem mandá-las por chat.
 
-- Mercado Pago: credenciais de teste (Access Token de teste), o segredo de assinatura das notificações e `MP_EMAIL_PAGADOR_TESTE`, porque o Mercado Pago recusa o email `.local` das contas de demonstração.
+- Mercado Pago: Access Token de produção da conta de vendedor de teste, o segredo de assinatura do webhook (evento "Order (Mercado Pago)") e `MP_EMAIL_PAGADOR_TESTE` com o email de uma conta compradora de teste.
 - Resend: chave da API, configuração como SMTP do Supabase Auth e remetente.
 - Google Maps: cadastrar `GOOGLE_MAPS_API_KEY` na Vercel. A chave precisa das APIs Maps JavaScript e Geocoding e fica restrita ao domínio do site.
 - Vercel: cadastrar as variáveis de ambiente também no Preview e colocar o Playwright no CI contra o preview.

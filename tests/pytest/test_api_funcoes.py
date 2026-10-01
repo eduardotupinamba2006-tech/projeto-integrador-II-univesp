@@ -124,7 +124,6 @@ class TestCobrancaPix:
         assert status == 200
         assert Decimal(resp["valor"]) == Decimal("30.00")
         assert mp.cobrancas[0]["valor"] == "30.00"
-        assert mp.cobrancas[0]["url_notificacao"] == "https://site.teste/api/webhook_pagamento"
         pagamento = sb.selecionar_um("pagamentos", {"id": "eq." + resp["pagamento_id"]})
         assert pagamento["tipo"] == "taxa_certidao"
         assert pagamento["status"] == "pendente"
@@ -149,7 +148,7 @@ class TestCobrancaPix:
     def test_segunda_chamada_reaproveita_a_cobranca(self, dados, sb, mp):
         corpo = {"tipo": "taxa_certidao", "solicitacao_id": dados["sol"]["id"]}
         _, primeira = cobranca_pix.processar(dados["fiel"], "f@teste.local", corpo)
-        mp.pagamentos["1001"] = {"point_of_interaction": {"transaction_data": {"qr_code": "000201PIX"}}}
+        mp.pagamentos["1001"] = {"qr_code": "000201PIX"}
         _, segunda = cobranca_pix.processar(dados["fiel"], "f@teste.local", corpo)
         assert segunda["pagamento_id"] == primeira["pagamento_id"]
         assert len(mp.cobrancas) == 1
@@ -166,15 +165,15 @@ class TestCobrancaPix:
         assert pagamento["tipo"] == "dizimo"
         assert pagamento["paroquia_id"] == dados["p2"]["id"]
 
-    def test_email_do_pagador_e_o_da_conta(self, dados, sb, mp, monkeypatch):
+    def test_pagador_e_o_dono_da_conta(self, dados, sb, mp, monkeypatch):
         monkeypatch.delenv("MP_EMAIL_PAGADOR_TESTE", raising=False)
         cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "dizimo", "paroquia_id": dados["p1"]["id"], "valor": "10"})
-        assert mp.cobrancas[0]["email"] == "f@teste.local"
+        assert mp.cobrancas[0]["pagador"] == {"email": "f@teste.local"}
 
-    def test_email_de_teste_substitui_o_da_conta_no_sandbox(self, dados, sb, mp, monkeypatch):
-        monkeypatch.setenv("MP_EMAIL_PAGADOR_TESTE", "comprador@testuser.com")
+    def test_sandbox_usa_comprador_de_teste_aprovado_automaticamente(self, dados, sb, mp, monkeypatch):
+        monkeypatch.setenv("MP_EMAIL_PAGADOR_TESTE", "test_user_1@testuser.com")
         cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "dizimo", "paroquia_id": dados["p1"]["id"], "valor": "10"})
-        assert mp.cobrancas[0]["email"] == "comprador@testuser.com"
+        assert mp.cobrancas[0]["pagador"] == {"email": "test_user_1@testuser.com", "first_name": "APRO"}
 
     @pytest.mark.parametrize("valor", ["0", "0.99", "-10", "abc", "10.001", "100000.01", "NaN", None])
     def test_dizimo_com_valor_invalido(self, dados, sb, mp, valor):
@@ -209,7 +208,7 @@ class TestWebhookPagamento:
     def test_taxa_paga_coloca_solicitacao_em_analise(self, dados, sb, mp):
         pag = self._pagamento(sb, dados, "taxa_certidao")
         sb.atualizar("solicitacoes_certidao", {"id": "eq." + dados["sol"]["id"]}, {"pagamento_id": pag["id"]})
-        mp.pagamentos["555"] = {"status": "approved", "external_reference": pag["id"], "transaction_amount": 30.0}
+        mp.pagamentos["555"] = {"status": "processed", "external_reference": pag["id"], "valor": "30.0"}
 
         status, resp = webhook_pagamento.processar_pagamento("555")
 
@@ -220,7 +219,7 @@ class TestWebhookPagamento:
     def test_dizimo_pago_de_dizimista_gera_doacao(self, dados, sb, mp):
         dizimista = sb.semear("dizimistas", {"perfil_id": dados["fiel"]["id"], "paroquia_id": dados["p1"]["id"]})
         pag = self._pagamento(sb, dados, "dizimo", valor="50.00")
-        mp.pagamentos["555"] = {"status": "approved", "external_reference": pag["id"], "transaction_amount": 50}
+        mp.pagamentos["555"] = {"status": "processed", "external_reference": pag["id"], "valor": "50"}
 
         webhook_pagamento.processar_pagamento("555")
         webhook_pagamento.processar_pagamento("555")  # notificação repetida
@@ -232,35 +231,72 @@ class TestWebhookPagamento:
 
     def test_dizimo_pago_sem_cadastro_de_dizimista_nao_gera_doacao(self, dados, sb, mp):
         pag = self._pagamento(sb, dados, "dizimo", valor="50.00")
-        mp.pagamentos["555"] = {"status": "approved", "external_reference": pag["id"], "transaction_amount": 50}
+        mp.pagamentos["555"] = {"status": "processed", "external_reference": pag["id"], "valor": "50"}
         webhook_pagamento.processar_pagamento("555")
         assert sb.selecionar_um("pagamentos", {"id": "eq." + pag["id"]})["status"] == "pago"
         assert sb.tabelas.get("doacoes", []) == []
 
     def test_pagamento_pendente_e_ignorado(self, dados, sb, mp):
         pag = self._pagamento(sb, dados, "dizimo")
-        mp.pagamentos["555"] = {"status": "pending", "external_reference": pag["id"], "transaction_amount": 30}
+        mp.pagamentos["555"] = {"status": "action_required", "external_reference": pag["id"], "valor": "30"}
         status, resp = webhook_pagamento.processar_pagamento("555")
         assert status == 200 and "ignorado" in resp
         assert sb.selecionar_um("pagamentos", {"id": "eq." + pag["id"]})["status"] == "pendente"
 
     def test_valor_divergente_nao_confirma(self, dados, sb, mp):
         pag = self._pagamento(sb, dados, "taxa_certidao")
-        mp.pagamentos["555"] = {"status": "approved", "external_reference": pag["id"], "transaction_amount": 0.01}
+        mp.pagamentos["555"] = {"status": "processed", "external_reference": pag["id"], "valor": "0.01"}
         assert webhook_pagamento.processar_pagamento("555")[0] == 409
         assert sb.selecionar_um("pagamentos", {"id": "eq." + pag["id"]})["status"] == "pendente"
 
     def test_id_externo_de_outro_pagamento_nao_confirma(self, dados, sb, mp):
         pag = self._pagamento(sb, dados, "taxa_certidao", ext="999")
-        mp.pagamentos["555"] = {"status": "approved", "external_reference": pag["id"], "transaction_amount": 30}
+        mp.pagamentos["555"] = {"status": "processed", "external_reference": pag["id"], "valor": "30"}
         assert webhook_pagamento.processar_pagamento("555")[0] == 404
 
     def test_estorno(self, dados, sb, mp):
         pag = self._pagamento(sb, dados, "dizimo")
         sb.atualizar("pagamentos", {"id": "eq." + pag["id"]}, {"status": "pago"})
-        mp.pagamentos["555"] = {"status": "refunded", "external_reference": pag["id"], "transaction_amount": 30}
+        mp.pagamentos["555"] = {"status": "refunded", "external_reference": pag["id"], "valor": "30"}
         webhook_pagamento.processar_pagamento("555")
         assert sb.selecionar_um("pagamentos", {"id": "eq." + pag["id"]})["status"] == "estornado"
+
+
+class TestClienteMercadoPago:
+    ORDER = {
+        "id": "ORDTST01", "status": "action_required", "external_reference": "pag-1", "total_amount": "30.00",
+        "transactions": {"payments": [{"payment_method": {"id": "pix", "qr_code": "000201PIX", "qr_code_base64": "iVBOR", "ticket_url": "https://mp.teste"}}]},
+    }
+
+    def test_cria_order_pix_com_idempotencia(self, monkeypatch):
+        chamadas = []
+        monkeypatch.setenv("MP_ACCESS_TOKEN", "token-teste")
+        monkeypatch.setattr(mercadopago, "requisitar", lambda *a, **k: chamadas.append((a, k)) or self.ORDER)
+
+        pix = mercadopago.criar_pix("pag-1", Decimal("30"), "Taxa", {"email": "f@x.com"})
+
+        (metodo, url), opcoes = chamadas[0]
+        assert (metodo, url) == ("POST", "https://api.mercadopago.com/v1/orders")
+        assert opcoes["headers"]["X-Idempotency-Key"] == "pag-1"
+        corpo = opcoes["json_corpo"]
+        assert corpo["total_amount"] == "30.00"
+        assert corpo["external_reference"] == "pag-1"
+        assert corpo["transactions"]["payments"][0] == {"amount": "30.00", "payment_method": {"id": "pix", "type": "bank_transfer"}}
+        assert pix == {"id": "ORDTST01", "status": "action_required", "external_reference": "pag-1", "valor": "30.00",
+                       "qr_code": "000201PIX", "qr_code_base64": "iVBOR", "ticket_url": "https://mp.teste"}
+
+
+    def test_espera_o_qr_code_quando_a_order_nasce_processando(self, monkeypatch):
+        processando = dict(self.ORDER, status="processing", transactions={"payments": [{"payment_method": {"id": "pix"}}]})
+        respostas = [processando, processando, self.ORDER]
+        monkeypatch.setenv("MP_ACCESS_TOKEN", "token-teste")
+        monkeypatch.setattr(mercadopago, "requisitar", lambda *a, **k: respostas.pop(0))
+        monkeypatch.setattr(mercadopago.time, "sleep", lambda s: None)
+
+        pix = mercadopago.criar_pix("pag-1", "30.00", "Taxa", {"email": "f@x.com"})
+
+        assert pix["qr_code"] == "000201PIX"
+        assert respostas == []
 
 
 class TestAssinaturaMercadoPago:

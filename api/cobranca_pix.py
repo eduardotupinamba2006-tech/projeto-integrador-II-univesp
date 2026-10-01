@@ -44,16 +44,19 @@ def _resposta_pix(pagamento, pix):
 
 def _pix_existente(pagamento):
     """Reapresenta a cobrança Pix de um pagamento pendente já criado."""
-    dados = mercadopago.consultar(pagamento["id_transacao_externa"])
-    tx = dados.get("point_of_interaction", {}).get("transaction_data", {})
-    return {"qr_code": tx.get("qr_code"), "qr_code_base64": tx.get("qr_code_base64"), "ticket_url": tx.get("ticket_url")}
+    return mercadopago.consultar(pagamento["id_transacao_externa"])
+
+
+def _pagador(email):
+    """No sandbox vai o comprador de teste com o nome APRO, que faz o Mercado Pago aprovar o Pix sozinho."""
+    email_teste = config.email_pagador_teste()
+    if email_teste:
+        return {"email": email_teste, "first_name": "APRO"}
+    return {"email": email}
 
 
 def _cobrar(pagamento, descricao, email):
-    pix = mercadopago.criar_pix(
-        pagamento["id"], pagamento["valor"], descricao, config.email_pagador_teste() or email,
-        config.site_url() + "/api/webhook_pagamento",
-    )
+    pix = mercadopago.criar_pix(pagamento["id"], pagamento["valor"], descricao, _pagador(email))
     supabase.atualizar("pagamentos", {"id": "eq." + pagamento["id"]}, {"id_transacao_externa": pix["id"]})
     return pix
 

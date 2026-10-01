@@ -26,9 +26,10 @@ def site_url():
 
 
 def email_pagador_teste():
-    """Email enviado ao Mercado Pago no lugar do email da conta, só no sandbox.
+    """Email do comprador de teste enviado ao Mercado Pago no lugar do email da conta.
 
-    As contas de demonstração usam o domínio .local, que o Mercado Pago recusa.
+    Só existe no sandbox: as contas de demonstração usam o domínio .local, que o
+    Mercado Pago recusa, e com ele o Pix de teste é aprovado automaticamente.
     Ao sair do sandbox, a variável é removida e vale o email real de quem paga.
     """
     return os.environ.get("MP_EMAIL_PAGADOR_TESTE") or None

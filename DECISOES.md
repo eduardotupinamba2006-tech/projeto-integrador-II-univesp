@@ -53,7 +53,8 @@ Registro de decisões que divergem do Plano de Ação entregue e validado pela o
 - **Database Webhooks via Vault:** os gatilhos de email leem a URL da função e o segredo compartilhado do Vault de cada ambiente, então nada disso fica no repositório. Sem os segredos (Supabase local e CI), os gatilhos não fazem nada.
 - **QR Code:** aponta para `/pages/validar.html?c=<id>.<assinatura HMAC-SHA256>`. A validação pública mostra só tipo, nome, data do sacramento, paróquia, diocese e data de emissão.
 - **Webhook do Mercado Pago:** valida o cabeçalho `x-signature` e sempre consulta o status real na API do Mercado Pago antes de alterar qualquer coisa. Confere também o valor e o id da transação.
-- **Email do pagador no sandbox:** o Mercado Pago recusa o domínio `.local` das contas de demonstração. Enquanto existir a variável `MP_EMAIL_PAGADOR_TESTE`, a cobrança vai com esse email no lugar do email da conta. Fora do sandbox a variável é removida.
+- **API de Orders do Mercado Pago:** a cobrança Pix usa `/v1/orders`, e não `/v1/payments`. A API de Payments recusa contas de teste ("Unauthorized use of live credentials"), e a de Orders é a indicada hoje para o Checkout Transparente. O sandbox usa as credenciais de produção da conta de vendedor de teste. A URL do webhook vem do painel da aplicação, com o evento "Order (Mercado Pago)", porque a API de Orders não aceita `notification_url` na requisição.
+- **Comprador de teste no sandbox:** o Mercado Pago recusa o domínio `.local` das contas de demonstração. Enquanto existir a variável `MP_EMAIL_PAGADOR_TESTE` (email de uma conta compradora de teste), a cobrança vai com esse email e com o nome `APRO`, que faz o sandbox aprovar o Pix sozinho em alguns segundos. Assim o fluxo inteiro (pagamento, webhook, pedido em análise, doação) roda de verdade na demonstração. Fora do sandbox a variável é removida e vale o email de quem paga.
 
 ## 6. Frontend: decisões da frente 3
 

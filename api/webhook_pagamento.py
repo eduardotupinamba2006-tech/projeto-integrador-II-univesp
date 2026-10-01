@@ -1,7 +1,7 @@
-"""POST /api/webhook_pagamento: notificação do Mercado Pago.
+"""POST /api/webhook_pagamento: notificação de order do Mercado Pago.
 
-O corpo da notificação só informa o id; o status real é sempre consultado na API
-do Mercado Pago antes de alterar qualquer coisa.
+Do corpo da notificação só se usa o id da order; o status real é sempre consultado
+na API do Mercado Pago antes de alterar qualquer coisa.
 """
 
 import json
@@ -27,7 +27,7 @@ def processar_pagamento(id_externo):
     )
     if not pagamento or pagamento.get("id_transacao_externa") not in (None, str(id_externo)):
         return 404, {"erro": "pagamento não encontrado"}
-    if Decimal(str(dados.get("transaction_amount"))) != Decimal(str(pagamento["valor"])):
+    if Decimal(str(dados.get("valor"))) != Decimal(str(pagamento["valor"])):
         return 409, {"erro": "valor divergente"}
     if pagamento["status"] == novo_status:
         return 200, {"ok": True, "idempotente": True}
@@ -78,7 +78,7 @@ class handler(Handler):
             config.obrigatoria("MP_WEBHOOK_SECRET"),
         ):
             return self.responder(401, {"erro": "assinatura inválida"})
-        if tipo != "payment":
+        if tipo != "order":
             return self.responder(200, {"ignorado": tipo})
 
         status, resposta = processar_pagamento(data_id)

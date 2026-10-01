@@ -72,12 +72,9 @@ class MercadoPagoFalso:
         self.pagamentos = {}
         self._proximo = 1000
 
-    def criar_pix(self, pagamento_id, valor, descricao, email_pagador, url_notificacao):
+    def criar_pix(self, pagamento_id, valor, descricao, pagador):
         self._proximo += 1
-        self.cobrancas.append({
-            "pagamento_id": pagamento_id, "valor": valor, "descricao": descricao,
-            "email": email_pagador, "url_notificacao": url_notificacao,
-        })
+        self.cobrancas.append({"pagamento_id": pagamento_id, "valor": valor, "descricao": descricao, "pagador": pagador})
         return {"id": str(self._proximo), "qr_code": "000201PIX", "qr_code_base64": "iVBOR", "ticket_url": "https://mp.teste"}
 
     def consultar(self, id_externo):
