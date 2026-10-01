@@ -118,6 +118,8 @@ class handler(Handler):
             return self.responder(403, {"erro": "perfil não encontrado"})
         try:
             status, resposta = processar(perfil, usuario["email"], corpo)
-        except ErroHttp:
+        except ErroHttp as erro:
+            # Vai para os logs da Vercel: é a única forma de ver por que o Mercado Pago recusou.
+            print("cobranca_pix: " + str(erro), file=sys.stderr)
             return self.responder(502, {"erro": "falha ao gerar a cobrança Pix, tente novamente"})
         self.responder(status, resposta)
