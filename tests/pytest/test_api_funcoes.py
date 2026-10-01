@@ -166,6 +166,16 @@ class TestCobrancaPix:
         assert pagamento["tipo"] == "dizimo"
         assert pagamento["paroquia_id"] == dados["p2"]["id"]
 
+    def test_email_do_pagador_e_o_da_conta(self, dados, sb, mp, monkeypatch):
+        monkeypatch.delenv("MP_EMAIL_PAGADOR_TESTE", raising=False)
+        cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "dizimo", "paroquia_id": dados["p1"]["id"], "valor": "10"})
+        assert mp.cobrancas[0]["email"] == "f@teste.local"
+
+    def test_email_de_teste_substitui_o_da_conta_no_sandbox(self, dados, sb, mp, monkeypatch):
+        monkeypatch.setenv("MP_EMAIL_PAGADOR_TESTE", "comprador@testuser.com")
+        cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "dizimo", "paroquia_id": dados["p1"]["id"], "valor": "10"})
+        assert mp.cobrancas[0]["email"] == "comprador@testuser.com"
+
     @pytest.mark.parametrize("valor", ["0", "0.99", "-10", "abc", "10.001", "100000.01", "NaN", None])
     def test_dizimo_com_valor_invalido(self, dados, sb, mp, valor):
         status, _ = cobranca_pix.processar(

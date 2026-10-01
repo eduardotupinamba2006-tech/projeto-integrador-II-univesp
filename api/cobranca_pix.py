@@ -51,7 +51,8 @@ def _pix_existente(pagamento):
 
 def _cobrar(pagamento, descricao, email):
     pix = mercadopago.criar_pix(
-        pagamento["id"], pagamento["valor"], descricao, email, config.site_url() + "/api/webhook_pagamento"
+        pagamento["id"], pagamento["valor"], descricao, config.email_pagador_teste() or email,
+        config.site_url() + "/api/webhook_pagamento",
     )
     supabase.atualizar("pagamentos", {"id": "eq." + pagamento["id"]}, {"id_transacao_externa": pix["id"]})
     return pix

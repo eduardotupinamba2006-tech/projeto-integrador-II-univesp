@@ -23,3 +23,12 @@ def supabase_url():
 
 def site_url():
     return obrigatoria("SITE_URL").rstrip("/")
+
+
+def email_pagador_teste():
+    """Email enviado ao Mercado Pago no lugar do email da conta, só no sandbox.
+
+    As contas de demonstração usam o domínio .local, que o Mercado Pago recusa.
+    Ao sair do sandbox, a variável é removida e vale o email real de quem paga.
+    """
+    return os.environ.get("MP_EMAIL_PAGADOR_TESTE") or None

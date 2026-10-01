@@ -237,7 +237,7 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 
 As integrações externas dependem de contas e chaves que a equipe precisa criar. Ninguém deve colocar essas chaves no repositório nem mandá-las por chat.
 
-- Mercado Pago: credenciais de teste (Access Token de teste) e o segredo de assinatura das notificações.
+- Mercado Pago: credenciais de teste (Access Token de teste), o segredo de assinatura das notificações e `MP_EMAIL_PAGADOR_TESTE`, porque o Mercado Pago recusa o email `.local` das contas de demonstração.
 - Resend: chave da API, configuração como SMTP do Supabase Auth e remetente.
 - Google Maps: cadastrar `GOOGLE_MAPS_API_KEY` na Vercel. A chave precisa das APIs Maps JavaScript e Geocoding e fica restrita ao domínio do site.
 - Vercel: cadastrar as variáveis de ambiente também no Preview e colocar o Playwright no CI contra o preview.
