@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from _lib import config, emails, resend, supabase  # noqa: E402
+from _lib import brevo, config, emails, supabase  # noqa: E402
 from _lib.resposta import Handler  # noqa: E402
 
 VALIDADE_LINK_PDF = 7 * 24 * 3600
@@ -48,7 +48,7 @@ def processar(evento):
             ctx = _contexto(tipo, evento)
             ctx["nome"] = nome
             assunto, html = emails.montar(tipo, ctx)
-            resend.enviar(destinatario, assunto, html)
+            brevo.enviar(destinatario, assunto, html)
             status_envio = "enviado"
     except Exception:  # noqa: BLE001 - qualquer falha vira registro "falhou"
         status_envio = "falhou"

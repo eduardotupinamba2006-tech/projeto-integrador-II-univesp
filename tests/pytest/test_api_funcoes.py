@@ -1,4 +1,4 @@
-"""Testes das funções serverless (api/*.py) com Supabase, Mercado Pago e Resend falsos."""
+"""Testes das funções serverless (api/*.py) com Supabase, Mercado Pago e Brevo falsos."""
 
 import hashlib
 import hmac
@@ -16,9 +16,9 @@ import enviar_email  # noqa: E402
 import pdf  # noqa: E402
 import validar_qrcode  # noqa: E402
 import webhook_pagamento  # noqa: E402
-from _lib import certidao_pdf, emails, mercadopago, token_qr  # noqa: E402
+from _lib import brevo, certidao_pdf, emails, mercadopago, token_qr  # noqa: E402
 
-from falsos import MercadoPagoFalso, ResendFalso, SupabaseFalso  # noqa: E402
+from falsos import MercadoPagoFalso, BrevoFalso, SupabaseFalso  # noqa: E402
 
 SEGREDO_QR = "segredo-qr-de-teste"
 
@@ -465,39 +465,72 @@ class TestClassificacaoEmails:
 
 class TestEnvioEmails:
     @pytest.fixture
-    def resend_ok(self, monkeypatch):
-        falso = ResendFalso()
-        monkeypatch.setattr(enviar_email, "resend", falso)
+    def brevo_ok(self, monkeypatch):
+        falso = BrevoFalso()
+        monkeypatch.setattr(enviar_email, "brevo", falso)
         return falso
 
-    def test_aprovacao_envia_link_do_pdf_e_registra(self, dados, sb, resend_ok):
+    def test_aprovacao_envia_link_do_pdf_e_registra(self, dados, sb, brevo_ok):
         sol = dict(dados["sol"], status="aprovado")
         resp = enviar_email.processar(_evento("solicitacoes_certidao", "UPDATE", sol, dados["sol"]))
 
         assert resp == {"tipo": "certidao_aprovada", "status_envio": "enviado"}
-        assert resend_ok.enviados[0]["para"] == "fiel@teste.local"
-        assert "/object/sign/certidoes/{}/{}.pdf".format(dados["fiel"]["id"], sol["id"]) in resend_ok.enviados[0]["html"]
+        assert brevo_ok.enviados[0]["para"] == "fiel@teste.local"
+        assert "/object/sign/certidoes/{}/{}.pdf".format(dados["fiel"]["id"], sol["id"]) in brevo_ok.enviados[0]["html"]
         registro = sb.tabelas["emails_enviados"][0]
         assert registro["status_envio"] == "enviado"
         assert registro["referencia_tabela"] == "solicitacoes_certidao"
         assert registro["referencia_id"] == sol["id"]
 
-    def test_recibo_de_dizimo(self, dados, sb, resend_ok):
+    def test_recibo_de_dizimo(self, dados, sb, brevo_ok):
         pag = {"id": "pag-1", "tipo": "dizimo", "status": "pago", "valor": "80.00",
                "usuario_id": dados["fiel"]["id"], "paroquia_id": dados["p1"]["id"]}
         enviar_email.processar(_evento("pagamentos", "UPDATE", pag, dict(pag, status="pendente")))
-        assert resend_ok.enviados[0]["assunto"] == "Recibo de doação"
-        assert "R$ 80,00" in resend_ok.enviados[0]["html"]
+        assert brevo_ok.enviados[0]["assunto"] == "Recibo de doação"
+        assert "R$ 80,00" in brevo_ok.enviados[0]["html"]
 
-    def test_falha_no_resend_registra_falhou(self, dados, sb, monkeypatch):
-        monkeypatch.setattr(enviar_email, "resend", ResendFalso(falhar=True))
+    def test_falha_no_brevo_registra_falhou(self, dados, sb, monkeypatch):
+        monkeypatch.setattr(enviar_email, "brevo", BrevoFalso(falhar=True))
         sol = dict(dados["sol"], status="rejeitado", motivo_rejeicao="Registro não localizado")
         resp = enviar_email.processar(_evento("solicitacoes_certidao", "UPDATE", sol, dados["sol"]))
         assert resp["status_envio"] == "falhou"
         assert sb.tabelas["emails_enviados"][0]["status_envio"] == "falhou"
         assert sb.tabelas["emails_enviados"][0]["destinatario_email"] == "fiel@teste.local"
 
-    def test_evento_sem_email_nao_registra(self, dados, sb, resend_ok):
+    def test_evento_sem_email_nao_registra(self, dados, sb, brevo_ok):
         sol = dict(dados["sol"], status="em_analise")
         assert enviar_email.processar(_evento("solicitacoes_certidao", "UPDATE", sol, dados["sol"])) == {"ignorado": True}
         assert "emails_enviados" not in sb.tabelas
+
+
+# ---------------------------------------------------------------------------
+# Cliente do Brevo
+# ---------------------------------------------------------------------------
+
+class TestBrevo:
+    @pytest.mark.parametrize("bruto, esperado", [
+        ("Certidões e Dízimo <avisos@exemplo.com>", {"name": "Certidões e Dízimo", "email": "avisos@exemplo.com"}),
+        ('"Paróquia" <avisos@exemplo.com>', {"name": "Paróquia", "email": "avisos@exemplo.com"}),
+        (" avisos@exemplo.com ", {"email": "avisos@exemplo.com"}),
+    ])
+    def test_remetente(self, monkeypatch, bruto, esperado):
+        monkeypatch.setenv("EMAIL_REMETENTE", bruto)
+        assert brevo.remetente() == esperado
+
+    def test_envia_pela_api_transacional(self, monkeypatch):
+        chamadas = []
+        monkeypatch.setenv("BREVO_API_KEY", "chave-teste")
+        monkeypatch.setenv("EMAIL_REMETENTE", "Certidões <avisos@exemplo.com>")
+        monkeypatch.setattr(brevo, "requisitar", lambda *a, **k: chamadas.append((a, k)) or {"messageId": "<1@brevo>"})
+
+        brevo.enviar("fiel@exemplo.com", "Assunto", "<p>Olá</p>")
+
+        (metodo, url), opcoes = chamadas[0]
+        assert (metodo, url) == ("POST", "https://api.brevo.com/v3/smtp/email")
+        assert opcoes["headers"]["api-key"] == "chave-teste"
+        assert opcoes["json_corpo"] == {
+            "sender": {"name": "Certidões", "email": "avisos@exemplo.com"},
+            "to": [{"email": "fiel@exemplo.com"}],
+            "subject": "Assunto",
+            "htmlContent": "<p>Olá</p>",
+        }

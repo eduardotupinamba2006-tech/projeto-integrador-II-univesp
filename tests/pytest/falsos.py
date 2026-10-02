@@ -1,4 +1,4 @@
-"""Dublês em memória do Supabase, Mercado Pago e Resend para testar as funções da pasta api/."""
+"""Dublês em memória do Supabase, Mercado Pago e Brevo para testar as funções da pasta api/."""
 
 import copy
 import uuid
@@ -81,13 +81,13 @@ class MercadoPagoFalso:
         return self.pagamentos[str(id_externo)]
 
 
-class ResendFalso:
+class BrevoFalso:
     def __init__(self, falhar=False):
         self.enviados = []
         self.falhar = falhar
 
     def enviar(self, para, assunto, html):
         if self.falhar:
-            raise RuntimeError("Resend indisponível")
+            raise RuntimeError("Brevo indisponível")
         self.enviados.append({"para": para, "assunto": assunto, "html": html})
         return {"id": "email-teste"}

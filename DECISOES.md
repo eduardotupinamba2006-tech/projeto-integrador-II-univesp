@@ -40,7 +40,7 @@ Registro de decisões que divergem do Plano de Ação entregue e validado pela o
 ## 4. Dependências adicionadas
 
 - **Data do registro:** 29/09/2026
-- Produção (funções Python): `fpdf2` (PDF da certidão) e `segno` (QR Code). As chamadas HTTP para Supabase, Mercado Pago e Resend usam a biblioteca padrão (`urllib`), sem SDK, e a assinatura do QR Code usa `hmac`.
+- Produção (funções Python): `fpdf2` (PDF da certidão) e `segno` (QR Code). As chamadas HTTP para Supabase, Mercado Pago e Brevo usam a biblioteca padrão (`urllib`), sem SDK, e a assinatura do QR Code usa `hmac`.
 - Testes Python: `pytest` e `psycopg`.
 - Ferramentas de desenvolvimento (Node, nunca em produção): `vitest`, `@playwright/test`, `@axe-core/playwright` e a Supabase CLI (`supabase`).
 
@@ -53,6 +53,7 @@ Registro de decisões que divergem do Plano de Ação entregue e validado pela o
 - **Database Webhooks via Vault:** os gatilhos de email leem a URL da função e o segredo compartilhado do Vault de cada ambiente, então nada disso fica no repositório. Sem os segredos (Supabase local e CI), os gatilhos não fazem nada.
 - **QR Code:** aponta para `/pages/validar.html?c=<id>.<assinatura HMAC-SHA256>`. A validação pública mostra só tipo, nome, data do sacramento, paróquia, diocese e data de emissão.
 - **Webhook do Mercado Pago:** valida o cabeçalho `x-signature` e sempre consulta o status real na API do Mercado Pago antes de alterar qualquer coisa. Confere também o valor e o id da transação.
+- **Brevo no lugar do Resend (decisão do grupo):** o envio de email usa a API transacional do Brevo (`/v3/smtp/email`). Sem domínio próprio, o Resend só entrega para o email do dono da conta; o Brevo entrega para qualquer endereço usando um remetente verificado, o que permite que colegas e professores recebam os emails nos testes. Sem domínio próprio, esses emails podem cair no spam.
 - **API de Orders do Mercado Pago:** a cobrança Pix usa `/v1/orders`, e não `/v1/payments`. A API de Payments recusa contas de teste ("Unauthorized use of live credentials"), e a de Orders é a indicada hoje para o Checkout Transparente. O sandbox usa as credenciais de produção da conta de vendedor de teste. A URL do webhook vem do painel da aplicação, com o evento "Order (Mercado Pago)", porque a API de Orders não aceita `notification_url` na requisição.
 - **Comprador de teste no sandbox:** o Mercado Pago recusa o domínio `.local` das contas de demonstração. Enquanto existir a variável `MP_EMAIL_PAGADOR_TESTE` (email de uma conta compradora de teste), a cobrança vai com esse email e com o nome `APRO`, que faz o sandbox aprovar o Pix sozinho em alguns segundos. Assim o fluxo inteiro (pagamento, webhook, pedido em análise, doação) roda de verdade na demonstração. Fora do sandbox a variável é removida e vale o email de quem paga.
 - **Conferência do pagamento pela tela do Pix:** o sandbox não envia webhook das orders de teste (só a notificação simulada do painel chega). Por isso, enquanto a tela do Pix está aberta, a página chama `cobranca_pix` com `tipo: "conferir"` a cada 5 segundos, por até 15 minutos. O servidor consulta a order no Mercado Pago e, se estiver paga, aplica a mesma lógica do webhook. Em produção real os dois caminhos convivem, e o que chegar primeiro confirma; o outro não duplica nada.

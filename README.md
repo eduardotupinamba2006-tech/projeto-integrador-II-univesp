@@ -18,7 +18,7 @@ Sistema web para dioceses e paróquias católicas, com dois módulos principais:
 
 ## Arquitetura
 
-Frontend em HTML, CSS e JavaScript puro, sem framework e sem Node no runtime de produção, hospedado na Vercel. As poucas rotinas que precisam rodar protegidas no servidor (nunca no navegador do usuário) são funções Python na própria Vercel: geração do PDF final da certidão, webhook de confirmação de pagamento, e disparo de email. Banco de dados, autenticação e storage ficam no Supabase (Postgres com Row Level Security). Emails transacionais e SMTP customizado do Supabase Auth via Resend. Pagamento via API Pix do Mercado Pago.
+Frontend em HTML, CSS e JavaScript puro, sem framework e sem Node no runtime de produção, hospedado na Vercel. As poucas rotinas que precisam rodar protegidas no servidor (nunca no navegador do usuário) são funções Python na própria Vercel: geração do PDF final da certidão, webhook de confirmação de pagamento, e disparo de email. Banco de dados, autenticação e storage ficam no Supabase (Postgres com Row Level Security). Emails transacionais e SMTP customizado do Supabase Auth via Brevo. Pagamento via API Pix do Mercado Pago.
 
 ```
 Navegador (HTML/CSS/JS)
@@ -29,7 +29,7 @@ Navegador (HTML/CSS/JS)
    └── Funções Python (Vercel)
           ├── geração de PDF da certidão
           ├── webhook de pagamento (Mercado Pago)
-          └── disparo de email (Resend)
+          └── disparo de email (Brevo)
 ```
 
 ## Modelo de acesso
@@ -104,7 +104,7 @@ Pedido pago e não encontrado no registro não é reembolsado automaticamente, a
 | `solicitacoes_certidao` aprovado | Aprovação, com link do PDF |
 | `solicitacoes_certidao` rejeitado | Recusa, com o motivo escrito pela paróquia |
 
-Supabase Auth usa Resend como SMTP customizado (o servidor padrão do Supabase só alcança membros da própria organização do projeto, não serve para usuário público real). Os demais emails são disparados por Database Webhook do Supabase chamando uma função Python que usa a API do Resend diretamente.
+Supabase Auth usa Brevo como SMTP customizado (o servidor padrão do Supabase só alcança membros da própria organização do projeto, não serve para usuário público real). Os demais emails são disparados por Database Webhook do Supabase chamando uma função Python que usa a API do Brevo diretamente.
 
 ## Acessibilidade
 
@@ -130,7 +130,7 @@ Dado de teste é sempre sintético. Nenhum dado real de paroquiano entra em dese
 
 GitHub Actions dispara a cada push: sobe Supabase local via CLI como serviço do próprio workflow, roda Vitest e pytest, aguarda o preview deploy da Vercel, roda Playwright contra ele. Push na `main` vai para produção na Vercel, push em branch ou pull request gera preview automático com URL própria.
 
-Variáveis de ambiente (chaves do Supabase, Resend, Mercado Pago) ficam só no painel da Vercel, nunca no repositório, com valores separados para produção e preview.
+Variáveis de ambiente (chaves do Supabase, Brevo, Mercado Pago) ficam só no painel da Vercel, nunca no repositório, com valores separados para produção e preview.
 
 Dos dois projetos gratuitos do Supabase, um fica reservado para produção e demonstração. Desenvolvimento e CI usam a instância local via Supabase CLI, para não consumir o segundo projeto à toa.
 

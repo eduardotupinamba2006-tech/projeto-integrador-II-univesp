@@ -19,7 +19,7 @@ A regra central é que a certidão sai sempre do registro oficial da paróquia, 
 | Funções de servidor | Python, como funções serverless da Vercel |
 | Banco, login e arquivos | Supabase (Postgres com Row Level Security, Auth e Storage) |
 | Pagamento | Pix pela API de Orders do Mercado Pago (sandbox) |
-| Email | Resend |
+| Email | Brevo |
 | Geração de PDF | `fpdf2` e `segno` (QR Code) |
 | Testes | Vitest, pytest, Playwright com axe-core |
 | Integração contínua | GitHub Actions |
@@ -98,7 +98,7 @@ As contas de teste usam a senha `SenhaTeste#2026`:
 
 ## Funções de servidor
 
-As funções ficam em `api/`. Cada arquivo vira um endpoint na Vercel. Elas chamam o Supabase, o Mercado Pago e o Resend pela biblioteca padrão do Python (`urllib`), sem SDKs, e usam a chave de serviço do Supabase. Como essa chave ignora a RLS, cada função confere por conta própria quem está chamando e o que essa pessoa pode fazer.
+As funções ficam em `api/`. Cada arquivo vira um endpoint na Vercel. Elas chamam o Supabase, o Mercado Pago e o Brevo pela biblioteca padrão do Python (`urllib`), sem SDKs, e usam a chave de serviço do Supabase. Como essa chave ignora a RLS, cada função confere por conta própria quem está chamando e o que essa pessoa pode fazer.
 
 | Endpoint | O que faz |
 |---|---|
@@ -106,7 +106,7 @@ As funções ficam em `api/`. Cada arquivo vira um endpoint na Vercel. Elas cham
 | `POST /api/webhook_pagamento` | Recebe a notificação de order do Mercado Pago. Confere a assinatura `x-signature` e consulta a order na API do Mercado Pago antes de mudar qualquer coisa. Confere também o valor e o id da transação. Com o pagamento aprovado, marca `pagamentos` como pago. Se for uma taxa, move o pedido para "em análise"; se for um dízimo de um dizimista cadastrado, cria a doação. Notificações repetidas não duplicam nada. |
 | `POST /api/pdf` | Usada pela secretaria da paróquia. Confere se o pedido é da paróquia dela, se está em análise e se o registro escolhido é do mesmo sacramento e da mesma paróquia. Gera o PDF a partir do registro oficial, grava no bucket `certidoes` e marca o pedido como aprovado. |
 | `GET /api/validar_qrcode?c=...` | Endpoint público de autenticidade. O código do QR é o id do pedido mais uma assinatura HMAC-SHA256. A função devolve se a certidão é válida e, nesse caso, o sacramento, o nome, a data, a paróquia, a diocese e a data de emissão. |
-| `POST /api/enviar_email` | Chamada pelos gatilhos do banco. Escolhe o email certo, envia pelo Resend e grava toda tentativa em `emails_enviados`, com sucesso ou falha. |
+| `POST /api/enviar_email` | Chamada pelos gatilhos do banco. Escolhe o email certo, envia pelo Brevo e grava toda tentativa em `emails_enviados`, com sucesso ou falha. |
 | `GET /api/config` | Entrega ao navegador a URL do Supabase e a chave pública do ambiente. Como não há etapa de build, é assim que o preview e a produção apontam cada um para o seu próprio projeto. |
 
 As funções `cobranca_pix` e `config` não estavam na lista original de funções. A cobrança Pix precisa do token secreto do Mercado Pago e por isso não pode ser gerada no navegador. A configuração existe porque não há build para injetar variáveis nas páginas.
@@ -119,8 +119,8 @@ O PDF tem o cabeçalho da diocese e da paróquia, o título do sacramento e o te
 
 | Evento | Como é enviado |
 |---|---|
-| Conta criada | Supabase Auth, com o Resend como SMTP |
-| Esqueci a senha | Supabase Auth, com o Resend como SMTP |
+| Conta criada | Supabase Auth, com o Brevo como SMTP |
+| Esqueci a senha | Supabase Auth, com o Brevo como SMTP |
 | Pagamento criado | gatilho no banco, texto diferente para dízimo e para taxa |
 | Dízimo pago | gatilho no banco, recibo da doação |
 | Taxa de certidão paga | gatilho no banco, aviso de pedido em análise |
@@ -165,7 +165,7 @@ As fotos ficam em `img/`. O arquivo [`img/LEIAME.md`](../img/LEIAME.md) diz quai
 | Suíte | Quantidade | O que cobre | Onde roda |
 |---|---|---|---|
 | pytest, RLS | 156 | isolamento entre papéis, paróquias e dioceses em todas as tabelas, travas de coluna, bucket de certidões e gatilhos de email | CI, contra um Supabase local |
-| pytest, funções | 68 | cobrança Pix, webhook, assinatura do Mercado Pago, geração do PDF, token do QR Code, validação pública e escolha e envio de emails, com Supabase, Mercado Pago e Resend simulados | CI |
+| pytest, funções | 68 | cobrança Pix, webhook, assinatura do Mercado Pago, geração do PDF, token do QR Code, validação pública e escolha e envio de emails, com Supabase, Mercado Pago e Brevo simulados | CI |
 | Vitest | 35 | validação de CPF, email, senha e valor; formatação de moeda e data; distância e ordenação de paróquias; somas de arrecadação | CI |
 | Playwright | 27 | login por papel, páginas protegidas, painéis, fluxo completo de certidão (vínculo, PDF, download, QR Code e rejeição) e acessibilidade com axe-core em 11 páginas nos modos claro e escuro | localmente, contra o Supabase de desenvolvimento |
 
@@ -220,13 +220,13 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 | Critério | Situação |
 |---|---|
 | Migrations aplicadas e RLS isolando os três papéis | feito e testado no CI e no projeto de desenvolvimento; falta aplicar em produção |
-| Cadastro, login e recuperação de senha | páginas prontas e testadas; o email de recuperação depende do SMTP do Resend |
+| Cadastro, login e recuperação de senha | páginas prontas e testadas; o email de recuperação depende do SMTP do Brevo |
 | Busca de paróquia por proximidade | feita com a localização do navegador e, com a chave configurada, com endereço ou CEP e mapa do Google |
 | Fluxo completo de certidão até o PDF com QR Code | testado de ponta a ponta a partir do pedido pago; o Pix real do sandbox leva o pedido a "em análise" |
 | Validação do QR Code para certidão válida e inválida | feito e testado |
 | Fluxo completo de dízimo até a arrecadação | feito e testado com o Pix real do sandbox, aprovado automaticamente e confirmado na tela |
 | Painéis paroquial e diocesano com a RLS respeitada | feito e testado |
-| Sete emails em sandbox com registro em `emails_enviados` | lógica e registro testados; falta configurar o Resend |
+| Sete emails em sandbox com registro em `emails_enviados` | lógica e registro testados; falta configurar o Brevo |
 | VLibras em todas as páginas, sem violação nova no axe-core | feito: widget oficial em todas as páginas, com teste de presença e axe-core sem violações |
 | Vitest, pytest e Playwright passando localmente e no CI | passam localmente; o Playwright ainda não está no CI |
 | GitHub Actions rodando a suíte a cada push | roda banco, funções e Vitest; falta o Playwright |
@@ -238,7 +238,7 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 As integrações externas dependem de contas e chaves que a equipe precisa criar. Ninguém deve colocar essas chaves no repositório nem mandá-las por chat.
 
 - Mercado Pago: Access Token de produção da conta de vendedor de teste, o segredo de assinatura do webhook (evento "Order (Mercado Pago)") e `MP_EMAIL_PAGADOR_TESTE` com o email de uma conta compradora de teste.
-- Resend: chave da API, configuração como SMTP do Supabase Auth e remetente.
+- Brevo: chave da API (`BREVO_API_KEY`), remetente verificado (`EMAIL_REMETENTE`) e configuração como SMTP do Supabase Auth.
 - Google Maps: cadastrar `GOOGLE_MAPS_API_KEY` na Vercel. A chave precisa das APIs Maps JavaScript e Geocoding e fica restrita ao domínio do site.
 - Vercel: cadastrar as variáveis de ambiente também no Preview e colocar o Playwright no CI contra o preview.
 - Produção: aplicar as migrations no projeto de produção e cadastrar os segredos do Vault para os emails.
