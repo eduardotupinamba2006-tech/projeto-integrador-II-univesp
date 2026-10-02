@@ -3,6 +3,11 @@
 Corpo (JSON), com o JWT do usuário em Authorization: Bearer <token>:
   {"tipo": "taxa_certidao", "solicitacao_id": "<uuid>"}
   {"tipo": "dizimo", "paroquia_id": "<uuid>", "valor": "50.00"}
+  {"tipo": "conferir", "pagamento_id": "<uuid>"}
+
+"conferir" consulta a order no Mercado Pago e, se estiver paga, aplica a mesma
+lógica do webhook. A tela do Pix usa isso para confirmar o pagamento sem depender
+só da notificação (o sandbox do Mercado Pago não notifica orders de teste).
 """
 
 import os
@@ -11,6 +16,7 @@ from decimal import Decimal, InvalidOperation
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+import webhook_pagamento  # noqa: E402
 from _lib import config, mercadopago, supabase  # noqa: E402
 from _lib.http import ErroHttp  # noqa: E402
 from _lib.resposta import Handler  # noqa: E402
@@ -106,7 +112,16 @@ def processar(perfil, email, corpo):
         pix = _cobrar(pagamento, "Dízimo", email)
         return 200, _resposta_pix(pagamento, pix)
 
-    return 400, {"erro": "tipo deve ser taxa_certidao ou dizimo"}
+    if tipo == "conferir":
+        pagamento = supabase.selecionar_um("pagamentos", {"id": "eq." + (corpo.get("pagamento_id") or ""), "select": "*"})
+        if not pagamento or pagamento["usuario_id"] != perfil["id"]:
+            return 404, {"erro": "pagamento não encontrado"}
+        if pagamento["status"] == "pendente" and pagamento.get("id_transacao_externa"):
+            webhook_pagamento.processar_pagamento(pagamento["id_transacao_externa"])
+            pagamento = supabase.selecionar_um("pagamentos", {"id": "eq." + pagamento["id"], "select": "status"})
+        return 200, {"status": pagamento["status"]}
+
+    return 400, {"erro": "tipo deve ser taxa_certidao, dizimo ou conferir"}
 
 
 class handler(Handler):

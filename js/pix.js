@@ -1,5 +1,10 @@
-// Exibe a cobrança Pix devolvida por /api/cobranca_pix.
+// Exibe a cobrança Pix devolvida por /api/cobranca_pix e acompanha a confirmação do pagamento.
 import { escaparHtml, formatarMoeda } from './lib/formatacao.js';
+import { chamarApi } from './sessao.js';
+
+// Enquanto a tela do Pix estiver aberta, o servidor confere a order no Mercado Pago.
+const INTERVALO_CONFERENCIA_MS = 5000;
+const LIMITE_CONFERENCIA_MS = 15 * 60 * 1000;
 
 export function mostrarPix(container, pix, textoApos) {
   container.hidden = false;
@@ -15,6 +20,7 @@ export function mostrarPix(container, pix, textoApos) {
         <button type="button" class="botao" id="copiar-pix"><i class="ph-light ph-copy" aria-hidden="true"></i>Copiar código Pix</button>
         <span id="pix-copiado" role="status" aria-live="polite"></span>
       </div>
+      <p class="mensagem" id="pix-situacao" role="status" aria-live="polite">Aguardando a confirmação do pagamento…</p>
       <p>${escaparHtml(textoApos)}</p>
     </section>`;
 
@@ -29,4 +35,33 @@ export function mostrarPix(container, pix, textoApos) {
     }
   });
   container.querySelector('#titulo-pix').focus();
+  acompanharPagamento(container, pix);
+}
+
+function acompanharPagamento(container, pix) {
+  const inicio = Date.now();
+  const secao = container.querySelector('.pix');
+  const conferir = async () => {
+    // Para quando a tela do Pix sai da página ou depois do limite de tempo.
+    if (!secao.isConnected || Date.now() - inicio > LIMITE_CONFERENCIA_MS) return;
+    try {
+      const { status } = await chamarApi('/api/cobranca_pix', { tipo: 'conferir', pagamento_id: pix.pagamento_id });
+      if (status === 'pago') {
+        confirmar(secao, pix);
+        return;
+      }
+    } catch {
+      // Falha momentânea de rede ou do Mercado Pago: tenta de novo no próximo intervalo.
+    }
+    setTimeout(conferir, INTERVALO_CONFERENCIA_MS);
+  };
+  setTimeout(conferir, INTERVALO_CONFERENCIA_MS);
+}
+
+function confirmar(secao, pix) {
+  secao.querySelector('#titulo-pix').textContent = `Pagamento de ${formatarMoeda(pix.valor)} confirmado`;
+  secao.querySelectorAll('img, .campo, .acoes').forEach((elemento) => elemento.remove());
+  const situacao = secao.querySelector('#pix-situacao');
+  situacao.classList.add('mensagem-sucesso');
+  situacao.textContent = 'Pagamento confirmado. Obrigado!';
 }

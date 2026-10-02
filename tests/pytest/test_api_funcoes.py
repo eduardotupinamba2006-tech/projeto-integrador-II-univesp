@@ -195,6 +195,21 @@ class TestCobrancaPix:
         )
         assert status == 404
 
+    def test_conferir_confirma_pagamento_aprovado(self, dados, sb, mp):
+        _, pix = cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "taxa_certidao", "solicitacao_id": dados["sol"]["id"]})
+        corpo = {"tipo": "conferir", "pagamento_id": pix["pagamento_id"]}
+        mp.pagamentos["1001"] = {"status": "action_required", "external_reference": pix["pagamento_id"], "valor": "30.00"}
+        assert cobranca_pix.processar(dados["fiel"], "f@teste.local", corpo) == (200, {"status": "pendente"})
+
+        mp.pagamentos["1001"]["status"] = "processed"
+        assert cobranca_pix.processar(dados["fiel"], "f@teste.local", corpo) == (200, {"status": "pago"})
+        assert sb.selecionar_um("solicitacoes_certidao", {"id": "eq." + dados["sol"]["id"]})["status"] == "em_analise"
+
+    def test_conferir_pagamento_de_outro_usuario(self, dados, sb, mp):
+        _, pix = cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "dizimo", "paroquia_id": dados["p1"]["id"], "valor": "10"})
+        status, _ = cobranca_pix.processar(dados["outro"], "x@teste.local", {"tipo": "conferir", "pagamento_id": pix["pagamento_id"]})
+        assert status == 404
+
     def test_tipo_invalido(self, dados, sb, mp):
         assert cobranca_pix.processar(dados["fiel"], "f@teste.local", {"tipo": "outro"})[0] == 400
 

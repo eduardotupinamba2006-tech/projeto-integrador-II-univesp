@@ -102,7 +102,7 @@ As funções ficam em `api/`. Cada arquivo vira um endpoint na Vercel. Elas cham
 
 | Endpoint | O que faz |
 |---|---|
-| `POST /api/cobranca_pix` | Gera a cobrança Pix de uma taxa de certidão ou de um dízimo. A taxa é fixa em R$ 30,00, definida no servidor, e o valor enviado pelo navegador é ignorado. O dízimo é cobrado pelo valor integral, entre R$ 1,00 e R$ 100.000,00. Se o pedido já tem uma cobrança pendente, a função devolve a mesma cobrança em vez de criar outra. No sandbox, o Pix vai com o comprador de teste e é aprovado sozinho em alguns segundos. |
+| `POST /api/cobranca_pix` | Gera a cobrança Pix de uma taxa de certidão ou de um dízimo. A taxa é fixa em R$ 30,00, definida no servidor, e o valor enviado pelo navegador é ignorado. O dízimo é cobrado pelo valor integral, entre R$ 1,00 e R$ 100.000,00. Se o pedido já tem uma cobrança pendente, a função devolve a mesma cobrança em vez de criar outra. No sandbox, o Pix vai com o comprador de teste e é aprovado sozinho em alguns segundos. Com `tipo: "conferir"`, consulta a order e aplica a mesma lógica do webhook; a tela do Pix usa isso a cada 5 segundos para mostrar "Pagamento confirmado". |
 | `POST /api/webhook_pagamento` | Recebe a notificação de order do Mercado Pago. Confere a assinatura `x-signature` e consulta a order na API do Mercado Pago antes de mudar qualquer coisa. Confere também o valor e o id da transação. Com o pagamento aprovado, marca `pagamentos` como pago. Se for uma taxa, move o pedido para "em análise"; se for um dízimo de um dizimista cadastrado, cria a doação. Notificações repetidas não duplicam nada. |
 | `POST /api/pdf` | Usada pela secretaria da paróquia. Confere se o pedido é da paróquia dela, se está em análise e se o registro escolhido é do mesmo sacramento e da mesma paróquia. Gera o PDF a partir do registro oficial, grava no bucket `certidoes` e marca o pedido como aprovado. |
 | `GET /api/validar_qrcode?c=...` | Endpoint público de autenticidade. O código do QR é o id do pedido mais uma assinatura HMAC-SHA256. A função devolve se a certidão é válida e, nesse caso, o sacramento, o nome, a data, a paróquia, a diocese e a data de emissão. |
@@ -222,9 +222,9 @@ Os testes de RLS (`py -m pytest tests/pytest -m rls`) precisam de um Supabase lo
 | Migrations aplicadas e RLS isolando os três papéis | feito e testado no CI e no projeto de desenvolvimento; falta aplicar em produção |
 | Cadastro, login e recuperação de senha | páginas prontas e testadas; o email de recuperação depende do SMTP do Resend |
 | Busca de paróquia por proximidade | feita com a localização do navegador e, com a chave configurada, com endereço ou CEP e mapa do Google |
-| Fluxo completo de certidão até o PDF com QR Code | testado de ponta a ponta a partir do pedido pago; falta o Pix sandbox real |
+| Fluxo completo de certidão até o PDF com QR Code | testado de ponta a ponta a partir do pedido pago; o Pix real do sandbox leva o pedido a "em análise" |
 | Validação do QR Code para certidão válida e inválida | feito e testado |
-| Fluxo completo de dízimo até a arrecadação | lógica pronta e testada com simulação; falta o Pix sandbox real |
+| Fluxo completo de dízimo até a arrecadação | feito e testado com o Pix real do sandbox, aprovado automaticamente e confirmado na tela |
 | Painéis paroquial e diocesano com a RLS respeitada | feito e testado |
 | Sete emails em sandbox com registro em `emails_enviados` | lógica e registro testados; falta configurar o Resend |
 | VLibras em todas as páginas, sem violação nova no axe-core | feito: widget oficial em todas as páginas, com teste de presença e axe-core sem violações |
