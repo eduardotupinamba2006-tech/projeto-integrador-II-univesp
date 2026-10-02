@@ -13,11 +13,18 @@ from decimal import Decimal
 sys.path.insert(0, os.path.dirname(__file__))
 
 from _lib import config, mercadopago, supabase  # noqa: E402
+from _lib.http import ErroHttp  # noqa: E402
 from _lib.resposta import Handler  # noqa: E402
 
 
 def processar_pagamento(id_externo):
-    dados = mercadopago.consultar(id_externo)
+    try:
+        dados = mercadopago.consultar(id_externo)
+    except ErroHttp as erro:
+        # Id que o Mercado Pago não reconhece (como o da notificação simulada do painel): nada a fazer.
+        if erro.status in (400, 404):
+            return 200, {"ignorado": "order inexistente"}
+        raise
     novo_status = mercadopago.STATUS.get(dados.get("status"))
     if not novo_status:
         return 200, {"ignorado": "status " + str(dados.get("status"))}

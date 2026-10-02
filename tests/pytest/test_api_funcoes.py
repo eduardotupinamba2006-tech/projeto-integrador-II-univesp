@@ -304,6 +304,13 @@ class TestClienteMercadoPago:
         assert respostas == []
 
 
+    def test_order_inexistente_e_ignorada(self, dados, sb, monkeypatch):
+        def consultar(id_externo):
+            raise webhook_pagamento.ErroHttp(400, '{"errors":[{"code":"invalid_path_param"}]}')
+        monkeypatch.setattr(mercadopago, "consultar", consultar)
+        assert webhook_pagamento.processar_pagamento("123456") == (200, {"ignorado": "order inexistente"})
+
+
 class TestAssinaturaMercadoPago:
     SEGREDO = "segredo-webhook"
 
