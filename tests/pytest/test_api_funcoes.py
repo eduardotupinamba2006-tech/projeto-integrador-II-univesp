@@ -528,6 +528,7 @@ class TestBrevo:
         (metodo, url), opcoes = chamadas[0]
         assert (metodo, url) == ("POST", "https://api.brevo.com/v3/smtp/email")
         assert opcoes["headers"]["api-key"] == "chave-teste"
+        assert opcoes["headers"]["User-Agent"] == "certidoes-dizimo/1.0"
         assert opcoes["json_corpo"] == {
             "sender": {"name": "Certidões", "email": "avisos@exemplo.com"},
             "to": [{"email": "fiel@exemplo.com"}],

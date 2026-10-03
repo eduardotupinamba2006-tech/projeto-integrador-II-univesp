@@ -20,7 +20,12 @@ def enviar(para, assunto, html):
     return requisitar(
         "POST",
         "https://api.brevo.com/v3/smtp/email",
-        headers={"api-key": config.obrigatoria("BREVO_API_KEY"), "Accept": "application/json"},
+        headers={
+            "api-key": config.obrigatoria("BREVO_API_KEY"),
+            "Accept": "application/json",
+            # O firewall do Brevo recusa o User-Agent padrão do urllib (erro 1010).
+            "User-Agent": "certidoes-dizimo/1.0",
+        },
         json_corpo={
             "sender": remetente(),
             "to": [{"email": para}],
