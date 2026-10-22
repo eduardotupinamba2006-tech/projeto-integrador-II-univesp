@@ -125,11 +125,12 @@ def test_dioceses_ninguem_escreve(cur, cenario, quem):
 
 @pytest.mark.parametrize("quem", ["anon", "publico1", "paroquial_A1", "diocesano_Alfa"])
 def test_paroquias_ninguem_escreve(cur, cenario, quem):
+    """Ninguém edita nem apaga paróquia, e ninguém cadastra em outra diocese."""
     agir_como(cur, cenario, quem)
     with espera_erro(cur):
         cur.execute(
             "insert into public.paroquias (diocese_id, nome, endereco) values (%s, 'Paróquia Invasora', 'Rua X')",
-            (cenario.alfa,),
+            (cenario.beta,),
         )
 
     cur.execute("update public.paroquias set nome = 'Alterada' where id = %s", (cenario.a1,))
@@ -140,6 +141,29 @@ def test_paroquias_ninguem_escreve(cur, cenario, quem):
     como_postgres(cur)
     assert valor(cur, "select nome from public.paroquias where id = %s", (cenario.a1,)) == "Paróquia Teste A1"
     assert valor(cur, "select count(*) from public.paroquias where id = %s", (cenario.b1,)) == 1
+
+
+def test_paroquias_diocesano_cadastra_na_propria_diocese(cur, cenario):
+    como(cur, cenario.diocesano_Alfa)
+    cur.execute(
+        "insert into public.paroquias (diocese_id, nome, endereco, lat, lng) "
+        "values (%s, 'Paróquia Nova Alfa', 'Rua Fictícia, 9', -23.5, -46.6) returning id",
+        (cenario.alfa,),
+    )
+    nova = cur.fetchone()[0]
+
+    como_postgres(cur)
+    assert valor(cur, "select diocese_id from public.paroquias where id = %s", (nova,)) == cenario.alfa
+
+
+@pytest.mark.parametrize("quem", ["anon", "publico1", "paroquial_A1"])
+def test_paroquias_so_diocesano_cadastra(cur, cenario, quem):
+    agir_como(cur, cenario, quem)
+    with espera_erro(cur):
+        cur.execute(
+            "insert into public.paroquias (diocese_id, nome, endereco) values (%s, 'Paróquia Invasora', 'Rua X')",
+            (cenario.alfa,),
+        )
 
 
 # ---------------------------------------------------------------------------

@@ -99,3 +99,8 @@ O custo é que o cabeçalho e o rodapé passam a depender de JavaScript. Todas a
 - Os marcadores são `AdvancedMarkerElement`, que o teclado alcança, com o Map ID de demonstração do Google (`DEMO_MAP_ID`), coerente com a "chave demo" da especificação.
 - O mapa carrega em segundo plano e é complementar: a lista de paróquias continua sendo o caminho principal, inclusive para leitor de tela. Sem a chave, ou se o Google recusar a chave (`gm_authFailure`), o campo de endereço e o mapa somem e a página funciona como antes.
 - A chave é restrita ao domínio da Vercel, então localmente, e nos testes Playwright locais, o mapa não aparece.
+
+## 11. Pedidos do grupo depois da entrega inicial
+
+- **Botão de olho nos campos de senha** (entrar, cadastro e nova senha): o botão fica dentro do campo e alterna entre mostrar e esconder a senha. Ele usa `aria-pressed` e `aria-controls`, então o leitor de tela anuncia "Mostrar senha, pressionado" ou "não pressionado".
+- **Cadastro de paróquia pelo painel diocesano:** uma nova migration cria a política "paroquias: diocesano cadastra na própria diocese". O diocesano só cadastra paróquia na diocese dele, e edição e exclusão continuam fechadas para usuários. Ao cadastrar, o painel busca as coordenadas do endereço pelo Geocoder do Google Maps. Se o endereço não for localizado (ou se a chave do Maps não valer naquele endereço, como no servidor local), a paróquia é cadastrada sem coordenadas e o painel avisa que ela não aparece no mapa.

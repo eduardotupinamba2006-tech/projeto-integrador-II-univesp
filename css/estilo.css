@@ -458,6 +458,41 @@ textarea {
   resize: vertical;
 }
 
+/* Campo de senha com o botão de olho dentro, à direita. */
+.campo-senha {
+  position: relative;
+}
+
+.campo-senha input {
+  padding-right: 3.25rem;
+}
+
+.mostrar-senha {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--raio-campo);
+  background: transparent;
+  color: var(--texto-suave);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.mostrar-senha:hover {
+  color: var(--texto);
+}
+
+.mostrar-senha:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--foco) 45%, transparent);
+}
+
 input[aria-invalid="true"],
 select[aria-invalid="true"],
 textarea[aria-invalid="true"] {

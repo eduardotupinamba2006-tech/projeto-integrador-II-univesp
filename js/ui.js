@@ -14,7 +14,8 @@ export function marcarErro(campo, texto) {
     erro = document.createElement('span');
     erro.id = idErro;
     erro.className = 'dica mensagem-erro';
-    campo.insertAdjacentElement('afterend', erro);
+    // No campo de senha, a mensagem vai depois do conjunto campo + botão de olho.
+    (campo.closest('.campo-senha') || campo).insertAdjacentElement('afterend', erro);
   }
   erro.textContent = texto || '';
   if (texto) {

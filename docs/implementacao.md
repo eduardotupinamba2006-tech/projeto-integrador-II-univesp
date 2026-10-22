@@ -141,7 +141,7 @@ Os gatilhos leem a URL da função e um segredo compartilhado do Vault do Supaba
 | `pages/minhas-solicitacoes.html` | fiel | situação de cada pedido, novo Pix, download do PDF e motivo de rejeição |
 | `pages/dizimo.html` | fiel | escolha da paróquia, valor, cadastro opcional como dizimista e Pix |
 | `pages/painel-paroquial.html` | paróquia | fila de pedidos, análise com busca no livro, vínculo ou rejeição, cadastro de registros e arrecadação mensal |
-| `pages/dashboard-diocese.html` | diocese | totais da diocese, certidões e arrecadação por paróquia e por mês |
+| `pages/dashboard-diocese.html` | diocese | totais da diocese, certidões e arrecadação por paróquia e por mês, e cadastro de paróquia na própria diocese |
 | `pages/validar.html` | qualquer pessoa | resultado da leitura do QR Code |
 
 A escolha de paróquia aparece na certidão e no dízimo. Ela busca por nome ou endereço, ignorando acentos, e ordena as paróquias pela distância até o usuário, usando a localização do navegador. A distância é calculada pela fórmula de Haversine, em `js/lib/geo.js`. Com a chave do Google Maps configurada (`GOOGLE_MAPS_API_KEY`), aparecem também a busca a partir de um endereço ou CEP, feita pela geocodificação do Google, e um mapa com um marcador por paróquia. Clicar num marcador escolhe a paróquia, e escolher na lista destaca o marcador. Sem a chave, ou se o Google recusar a chave, o mapa some e a lista continua funcionando.

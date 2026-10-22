@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
 <link rel="stylesheet" href="/css/estilo.css">
 <script src="/js/layout.js"></script>
+<script type="module" src="/js/senha.js"></script>
 </head>
 <body>
 <site-cabecalho></site-cabecalho>
@@ -22,7 +23,10 @@
     </div>
     <div class="campo">
       <label for="senha">Senha</label>
-      <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+      <div class="campo-senha">
+        <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+        <button type="button" class="mostrar-senha" aria-label="Mostrar senha" aria-pressed="false" aria-controls="senha"><i class="ph-light ph-eye" aria-hidden="true"></i></button>
+      </div>
     </div>
     <button type="submit" class="botao">Entrar</button>
     <div id="mensagem" class="mensagem" role="alert"></div>

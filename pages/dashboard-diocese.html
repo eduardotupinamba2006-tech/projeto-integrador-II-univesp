@@ -82,6 +82,24 @@
       </table>
     </div>
   </section>
+
+  <section class="cartao" aria-labelledby="titulo-cadastro-paroquia">
+    <h2 id="titulo-cadastro-paroquia">Cadastrar paróquia</h2>
+    <p class="dica">A paróquia entra na diocese e passa a aparecer na escolha de paróquia dos fiéis.</p>
+    <form id="form-paroquia" novalidate>
+      <div class="campo">
+        <label for="paroquia-nome">Nome da paróquia</label>
+        <input type="text" id="paroquia-nome" required>
+      </div>
+      <div class="campo">
+        <label for="paroquia-endereco">Endereço completo</label>
+        <input type="text" id="paroquia-endereco" required autocomplete="off" data-dica="paroquia-endereco-dica" aria-describedby="paroquia-endereco-dica">
+        <span class="dica" id="paroquia-endereco-dica">Rua, número, bairro e cidade. O endereço também posiciona a paróquia no mapa.</span>
+      </div>
+      <button type="submit" class="botao"><i class="ph-light ph-plus" aria-hidden="true"></i>Cadastrar paróquia</button>
+      <div id="mensagem-paroquia" class="mensagem" role="status" aria-live="polite"></div>
+    </form>
+  </section>
 </main>
 
 <site-rodape></site-rodape>
