@@ -1,4 +1,4 @@
-// Painel diocesano: leitura consolidada e cadastro de paróquias da própria diocese.
+// Painel diocesano: leitura consolidada, cadastro de paróquias e vínculo de secretarias da própria diocese.
 // A RLS já limita solicitações e pagamentos às paróquias da diocese e só deixa
 // o diocesano cadastrar paróquia na diocese dele.
 import { config, supabase } from '../supabase.js';
@@ -8,6 +8,7 @@ import {
 } from '../lib/arrecadacao.js';
 import { escaparHtml, formatarMoeda } from '../lib/formatacao.js';
 import { carregarGoogleMaps, geocodificar } from '../mapa.js';
+import { validarEmail } from '../lib/validacao.js';
 import { marcarErro, mostrarMensagem, ocupado } from '../ui.js';
 
 const perfil = await exigirPerfil(['diocesano']);
@@ -69,6 +70,30 @@ async function carregarPainel() {
       <td class="numero">${formatarMoeda(m.taxa_certidao)}</td>
       <td class="numero">${formatarMoeda(m.total)}</td>
     </tr>`).join('') || '<tr><td colspan="4">Nenhum pagamento confirmado ainda.</td></tr>';
+
+  const seletor = $('secretaria-paroquia');
+  const escolhida = seletor.value;
+  seletor.innerHTML = listaParoquias.length
+    ? listaParoquias.map((p) => `<option value="${p.id}">${escaparHtml(p.nome)}</option>`).join('')
+    : '<option value="">Cadastre uma paróquia primeiro</option>';
+  if (listaParoquias.some((p) => p.id === escolhida)) seletor.value = escolhida;
+
+  await carregarSecretarias();
+}
+
+async function carregarSecretarias() {
+  const { data, error } = await supabase.rpc('secretarias_da_diocese');
+  if (error) {
+    $('lista-secretarias').innerHTML = '<tr><td colspan="4">Não foi possível carregar as secretarias.</td></tr>';
+    return;
+  }
+  $('lista-secretarias').innerHTML = data.map((s) => `
+    <tr>
+      <th scope="row">${escaparHtml(s.paroquia)}</th>
+      <td>${escaparHtml(s.nome)}</td>
+      <td>${escaparHtml(s.email)}</td>
+      <td><button type="button" class="botao botao-secundario" data-desvincular="${s.perfil_id}" aria-label="Desvincular ${escaparHtml(s.nome || s.email)} de ${escaparHtml(s.paroquia)}">Desvincular</button></td>
+    </tr>`).join('') || '<tr><td colspan="4">Nenhuma secretaria vinculada.</td></tr>';
 }
 
 // Coordenadas do endereço pelo Google Maps, quando a chave estiver disponível neste endereço.
@@ -122,6 +147,55 @@ form.addEventListener('submit', async (evento) => {
   );
   form.reset();
   await carregarPainel();
+});
+
+const formSecretaria = $('form-secretaria');
+formSecretaria.addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const email = $('secretaria-email');
+  const paroquia = $('secretaria-paroquia');
+  const mensagem = $('mensagem-secretaria');
+  mostrarMensagem(mensagem, '');
+
+  if (!marcarErro(email, validarEmail(email.value) ? '' : 'Informe um email válido.')) {
+    email.focus();
+    return;
+  }
+  if (!paroquia.value) {
+    mostrarMensagem(mensagem, 'Cadastre uma paróquia antes de vincular uma secretaria.', 'erro');
+    return;
+  }
+
+  const botao = formSecretaria.querySelector('button[type="submit"]');
+  ocupado(botao, true, 'Vinculando…');
+  const { error } = await supabase.rpc('vincular_secretaria', { p_email: email.value.trim(), p_paroquia_id: paroquia.value });
+  ocupado(botao, false);
+
+  if (error) {
+    // As mensagens das funções do banco já são escritas para quem usa o painel.
+    const conhecida = ['P0002', '42501'].includes(error.code);
+    mostrarMensagem(mensagem, conhecida ? error.message : 'Não foi possível vincular a secretaria. Tente novamente.', 'erro');
+    return;
+  }
+  const nomeParoquia = paroquia.options[paroquia.selectedIndex].text;
+  mostrarMensagem(mensagem, `${email.value.trim()} agora é secretaria da ${nomeParoquia}. No próximo login, a conta entra no painel paroquial.`, 'sucesso');
+  email.value = '';
+  await carregarSecretarias();
+});
+
+$('lista-secretarias').addEventListener('click', async (evento) => {
+  const botao = evento.target.closest('[data-desvincular]');
+  if (!botao) return;
+  if (!window.confirm('Desvincular esta secretaria? A conta continua existindo, mas volta a ser uma conta comum de fiel.')) return;
+  ocupado(botao, true, 'Desvinculando…');
+  const { error } = await supabase.rpc('desvincular_secretaria', { p_perfil_id: botao.dataset.desvincular });
+  if (error) {
+    ocupado(botao, false);
+    mostrarMensagem($('mensagem-secretaria'), 'Não foi possível desvincular a secretaria. Tente novamente.', 'erro');
+    return;
+  }
+  mostrarMensagem($('mensagem-secretaria'), 'Secretaria desvinculada.', 'sucesso');
+  await carregarSecretarias();
 });
 
 await carregarPainel();

@@ -100,6 +100,37 @@
       <div id="mensagem-paroquia" class="mensagem" role="status" aria-live="polite"></div>
     </form>
   </section>
+
+  <section class="cartao" aria-labelledby="titulo-secretarias">
+    <h2 id="titulo-secretarias">Secretarias das paróquias</h2>
+    <p class="dica">A pessoa cria a conta no site com o próprio email e confirma o cadastro. Depois, informe esse email aqui e escolha a paróquia: no próximo login ela entra no painel paroquial.</p>
+    <form id="form-secretaria" novalidate>
+      <div class="campo">
+        <label for="secretaria-email">Email da conta</label>
+        <input type="email" id="secretaria-email" required autocomplete="off">
+      </div>
+      <div class="campo">
+        <label for="secretaria-paroquia">Paróquia</label>
+        <select id="secretaria-paroquia" required></select>
+      </div>
+      <button type="submit" class="botao"><i class="ph-light ph-user-plus" aria-hidden="true"></i>Vincular secretaria</button>
+      <div id="mensagem-secretaria" class="mensagem" role="status" aria-live="polite"></div>
+    </form>
+    <div class="tabela-rolagem">
+      <table>
+        <caption class="visualmente-oculto">Secretarias vinculadas às paróquias da diocese</caption>
+        <thead>
+          <tr>
+            <th scope="col">Paróquia</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Email</th>
+            <th scope="col"><span class="visualmente-oculto">Ação</span></th>
+          </tr>
+        </thead>
+        <tbody id="lista-secretarias"></tbody>
+      </table>
+    </div>
+  </section>
 </main>
 
 <site-rodape></site-rodape>
