@@ -28,7 +28,7 @@ export function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email ?? '').trim());
 }
 
-export const SENHA_MINIMA = 8;
+export const SENHA_MINIMA = 6;
 
 export function validarSenha(senha) {
   return typeof senha === 'string' && senha.length >= SENHA_MINIMA;

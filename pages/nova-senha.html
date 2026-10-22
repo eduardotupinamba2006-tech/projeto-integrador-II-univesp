@@ -23,7 +23,7 @@
         <input type="password" id="senha" name="senha" autocomplete="new-password" required data-dica="senha-dica" aria-describedby="senha-dica">
         <button type="button" class="mostrar-senha" aria-label="Mostrar senha" aria-pressed="false" aria-controls="senha"><i class="ph-light ph-eye" aria-hidden="true"></i></button>
       </div>
-      <span class="dica" id="senha-dica">Pelo menos 8 caracteres.</span>
+      <span class="dica" id="senha-dica">Pelo menos 6 caracteres.</span>
     </div>
     <div class="campo">
       <label for="senha2">Confirme a nova senha</label>
@@ -57,7 +57,7 @@
   form.addEventListener('submit', async (evento) => {
     evento.preventDefault();
     const validos = [
-      marcarErro(senha, validarSenha(senha.value) ? '' : 'A senha precisa ter pelo menos 8 caracteres.'),
+      marcarErro(senha, validarSenha(senha.value) ? '' : 'A senha precisa ter pelo menos 6 caracteres.'),
       marcarErro(senha2, senha.value === senha2.value ? '' : 'As senhas não conferem.'),
     ];
     if (validos.includes(false)) {

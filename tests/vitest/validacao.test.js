@@ -36,9 +36,10 @@ describe('validarEmail e validarSenha', () => {
     expect(validarEmail('sem arroba')).toBe(false);
   });
 
-  it('exige senha com pelo menos 8 caracteres', () => {
+  it('exige senha com pelo menos 6 caracteres, sem outras regras', () => {
+    expect(validarSenha('123456')).toBe(true);
     expect(validarSenha('12345678')).toBe(true);
-    expect(validarSenha('1234567')).toBe(false);
+    expect(validarSenha('12345')).toBe(false);
     expect(validarSenha(undefined)).toBe(false);
   });
 });

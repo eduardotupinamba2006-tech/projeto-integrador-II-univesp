@@ -21,7 +21,7 @@ form.addEventListener('submit', async (evento) => {
     marcarErro(campo('nome'), nome ? '' : 'Informe seu nome.'),
     marcarErro(campo('cpf'), validarCPF(cpf) ? '' : 'CPF inválido.'),
     marcarErro(campo('email'), validarEmail(email) ? '' : 'Email inválido.'),
-    marcarErro(campo('senha'), validarSenha(senha) ? '' : 'A senha precisa ter pelo menos 8 caracteres.'),
+    marcarErro(campo('senha'), validarSenha(senha) ? '' : 'A senha precisa ter pelo menos 6 caracteres.'),
     marcarErro(campo('senha2'), senha === campo('senha2').value ? '' : 'As senhas não conferem.'),
   ];
   if (validos.includes(false)) {
