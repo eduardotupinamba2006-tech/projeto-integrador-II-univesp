@@ -632,6 +632,11 @@ fieldset {
 
 /* ------------------------------------------------------------ Mensagens */
 
+/* Esconde partes do template do Vue até a página montar (Minhas solicitações). */
+[v-cloak] {
+  display: none;
+}
+
 .mensagem {
   display: flex;
   gap: 0.6rem;

@@ -16,22 +16,53 @@
 <main id="conteudo" tabindex="-1">
   <h1>Minhas solicitações de certidão</h1>
   <p><a class="botao" href="/pages/solicitar-certidao.html"><i class="ph-light ph-plus" aria-hidden="true"></i>Nova solicitação</a></p>
-  <div id="mensagem" class="mensagem" role="status" aria-live="polite"></div>
-  <div class="tabela-rolagem">
-    <table>
-      <caption>Solicitações feitas por você</caption>
-      <thead>
-        <tr>
-          <th scope="col">Pedido em</th>
-          <th scope="col">Sacramento</th>
-          <th scope="col">Paróquia</th>
-          <th scope="col">Situação</th>
-          <th scope="col">Ações</th>
-        </tr>
-      </thead>
-      <tbody id="lista"><tr><td colspan="5">Carregando…</td></tr></tbody>
-    </table>
+  <!-- Área controlada pelo Vue 3 (js/paginas/minhas-solicitacoes.js). -->
+  <div id="app-solicitacoes">
+    <div id="mensagem" role="status" aria-live="polite"
+         :class="['mensagem', mensagem.texto && 'mensagem-' + mensagem.tipo]" v-text="mensagem.texto"></div>
+    <div class="tabela-rolagem">
+      <table>
+        <caption>Solicitações feitas por você</caption>
+        <thead>
+          <tr>
+            <th scope="col">Pedido em</th>
+            <th scope="col">Sacramento</th>
+            <th scope="col">Paróquia</th>
+            <th scope="col">Situação</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista">
+          <tr v-if="estado === 'carregando'"><td colspan="5">Carregando…</td></tr>
+          <tr v-else-if="estado === 'erro'" v-cloak><td colspan="5">Não foi possível carregar suas solicitações.</td></tr>
+          <tr v-else-if="!solicitacoes.length" v-cloak><td colspan="5">Você ainda não fez nenhuma solicitação.</td></tr>
+          <template v-else>
+          <tr v-for="s in solicitacoes" :key="s.id" v-cloak>
+            <td>{{ formatarDataHora(s.criado_em) }}</td>
+            <td>{{ SACRAMENTOS[s.tipo] }}</td>
+            <td>{{ s.paroquias?.nome }}</td>
+            <td><span :class="['etiqueta', 'etiqueta-' + s.status]">{{ STATUS_SOLICITACAO[s.status] }}</span></td>
+            <td>
+              <button v-if="s.status === 'aguardando_pagamento'" type="button" class="botao"
+                      :disabled="emAndamento === s.id" :aria-busy="emAndamento === s.id ? 'true' : null" @click="gerarPix(s)">
+                <template v-if="emAndamento === s.id">Gerando Pix…</template>
+                <template v-else><i class="ph-light ph-qr-code" aria-hidden="true"></i>Gerar Pix</template>
+              </button>
+              <button v-else-if="s.status === 'aprovado'" type="button" class="botao"
+                      :disabled="emAndamento === s.id" :aria-busy="emAndamento === s.id ? 'true' : null" @click="baixar(s)">
+                <template v-if="emAndamento === s.id">Preparando…</template>
+                <template v-else><i class="ph-light ph-download-simple" aria-hidden="true"></i>Baixar PDF</template>
+              </button>
+              <template v-else-if="s.status === 'rejeitado'"><strong>Motivo:</strong> {{ s.motivo_rejeicao }}</template>
+              <template v-else>Aguarde a análise da paróquia.</template>
+            </td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
   </div>
+  <!-- Quadro do Pix: fica fora da área do Vue e usa o código comum do site (js/pix.js). -->
   <div id="pix" hidden></div>
 </main>
 

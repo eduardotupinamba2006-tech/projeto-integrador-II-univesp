@@ -107,3 +107,12 @@ O custo é que o cabeçalho e o rodapé passam a depender de JavaScript. Todas a
 - **Secretarias das paróquias pelo painel diocesano:** a pessoa cria a conta no site, e a diocese informa o email dela e escolhe a paróquia. Os emails ficam em `auth.users`, e a RLS não deixa a diocese ver perfis de outras pessoas. Por isso, listar, vincular e desvincular são três funções `security definer` (`secretarias_da_diocese`, `vincular_secretaria`, `desvincular_secretaria`), que conferem no banco se quem chama é diocesano da diocese da paróquia. Elas não transformam conta de diocese em secretaria e não tiram secretaria de outra diocese. Desvincular devolve a conta ao papel de fiel.
 - **Senha mínima de 6 caracteres na fase de testes,** sem outras exigências, a pedido do grupo. Ao fim dos testes, o mínimo deve voltar a 8.
 
+
+## 12. Vue 3 na página "Minhas solicitações"
+
+- **Data do registro:** 10/11/2026
+- **Decisão:** a página "Minhas solicitações" (`pages/minhas-solicitacoes.html` e `js/paginas/minhas-solicitacoes.js`) passa a usar o Vue 3, carregado da CDN com a versão fixada (3.5.13), sem etapa de build, do mesmo jeito que o cliente do Supabase. As outras páginas continuam em JavaScript puro.
+- **Motivo:** o Plano de Ação previa um framework de interface, e a orientadora pediu para deixar o framework explícito. A troca completa para Next.js (seção 1) continua fora do alcance do prazo. Por isso, a equipe aplicou um framework em uma página, sem arriscar o resto do sistema.
+- **Por que essa página:** é a primeira tela do fiel depois do login, é pequena e mostra bem o que o framework faz. A tabela é declarada no HTML (`v-for`, `v-if`) e se atualiza sozinha quando o estado muda, sem montar HTML em texto. O Vue também escapa o conteúdo vindo do banco, então a página não precisa mais do `escaparHtml`.
+- **O que não mudou:** os IDs, textos e papéis de acessibilidade são os mesmos, então os testes Playwright e o axe-core continuam valendo. O quadro do Pix fica fora da área do Vue e continua com o código comum (`js/pix.js`), que também é usado pela página de dízimo.
+- **Consequência:** o projeto passa a ter duas formas de escrever páginas. Uma migração maior para o Vue fica como trabalho futuro.

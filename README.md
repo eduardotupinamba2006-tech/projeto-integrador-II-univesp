@@ -18,7 +18,7 @@ Sistema web para dioceses e paróquias católicas, com dois módulos principais:
 
 ## Arquitetura
 
-Frontend em HTML, CSS e JavaScript puro, sem framework e sem Node no runtime de produção, hospedado na Vercel. As poucas rotinas que precisam rodar protegidas no servidor (nunca no navegador do usuário) são funções Python na própria Vercel: geração do PDF final da certidão, webhook de confirmação de pagamento, e disparo de email. Banco de dados, autenticação e storage ficam no Supabase (Postgres com Row Level Security). Emails transacionais e SMTP customizado do Supabase Auth via Brevo. Pagamento via API Pix do Mercado Pago.
+Frontend em HTML, CSS e JavaScript puro, sem etapa de build e sem Node no runtime de produção, hospedado na Vercel. A página "Minhas solicitações" usa Vue 3, carregado pela CDN (ver seção 12 do `DECISOES.md`). As poucas rotinas que precisam rodar protegidas no servidor (nunca no navegador do usuário) são funções Python na própria Vercel: geração do PDF final da certidão, webhook de confirmação de pagamento, e disparo de email. Banco de dados, autenticação e storage ficam no Supabase (Postgres com Row Level Security). Emails transacionais e SMTP customizado do Supabase Auth via Brevo. Pagamento via API Pix do Mercado Pago.
 
 ```
 Navegador (HTML/CSS/JS)

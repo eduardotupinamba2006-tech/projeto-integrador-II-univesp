@@ -15,7 +15,7 @@ A regra central é que a certidão sai sempre do registro oficial da paróquia, 
 
 | Camada | Tecnologia |
 |---|---|
-| Páginas | HTML, CSS e JavaScript puro, sem framework e sem etapa de build |
+| Páginas | HTML, CSS e JavaScript puro, sem etapa de build; a página "Minhas solicitações" usa Vue 3 pela CDN |
 | Funções de servidor | Python, como funções serverless da Vercel |
 | Banco, login e arquivos | Supabase (Postgres com Row Level Security, Auth e Storage) |
 | Pagamento | Pix pela API de Orders do Mercado Pago (sandbox) |

@@ -14,7 +14,7 @@ test('página protegida manda para o login e volta depois de entrar', async ({ p
   await page.goto('/pages/dizimo.html');
   await expect(page).toHaveURL(/entrar\.html\?volta=%2Fpages%2Fdizimo\.html/);
   await page.getByLabel('Email').fill(CONTAS.fiel1);
-  await page.getByLabel('Senha').fill('SenhaTeste#2026');
+  await page.getByLabel('Senha', { exact: true }).fill('SenhaTeste#2026');
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page).toHaveURL(/dizimo\.html$/);
 });
@@ -28,7 +28,7 @@ test('papel errado é mandado para a própria página inicial', async ({ page })
 test('login com senha errada mostra erro', async ({ page }) => {
   await page.goto('/pages/entrar.html');
   await page.getByLabel('Email').fill(CONTAS.fiel1);
-  await page.getByLabel('Senha').fill('senha-errada');
+  await page.getByLabel('Senha', { exact: true }).fill('senha-errada');
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByRole('alert')).toHaveText('Email ou senha incorretos.');
 });
