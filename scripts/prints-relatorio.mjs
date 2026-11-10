@@ -8,8 +8,19 @@ import { chromium } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 
 const SITE = process.env.SITE || 'https://projeto-integrador-ii-univesp-igreja-crm.vercel.app';
-const SENHA = process.env.SENHA || 'SenhaTeste#2026';
+import { createInterface } from 'node:readline/promises';
+
+// Com CONTA_FIEL definida e sem SENHA, o script pergunta a senha no terminal.
+async function perguntar(texto) {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const resposta = await rl.question(texto);
+  rl.close();
+  return resposta.trim();
+}
+
 const CONTA_FIEL = process.env.CONTA_FIEL || 'fiel1@teste.local';
+const SENHA = process.env.SENHA
+  || (process.env.CONTA_FIEL || process.env.CONTA_DIOCESE ? await perguntar('Senha da conta: ') : 'SenhaTeste#2026');
 const CONTA_DIOCESE = process.env.CONTA_DIOCESE || 'diocese.alfa@teste.local';
 const APENAS = process.env.APENAS ? process.env.APENAS.split(',') : null;
 const PASTA = 'prints';

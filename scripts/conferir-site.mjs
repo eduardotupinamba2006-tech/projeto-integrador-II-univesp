@@ -6,11 +6,18 @@ import { chromium } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const SITE = process.env.SITE || 'https://projeto-integrador-ii-univesp-igreja-crm.vercel.app';
-const { CONTA_FIEL, SENHA } = process.env;
-if (!CONTA_FIEL || !SENHA) {
-  console.log('Informe CONTA_FIEL e SENHA.');
-  process.exit(1);
+import { createInterface } from 'node:readline/promises';
+
+// Sem SENHA no ambiente, o script pergunta a senha no terminal.
+async function perguntar(texto) {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const resposta = await rl.question(texto);
+  rl.close();
+  return resposta.trim();
 }
+
+const CONTA_FIEL = process.env.CONTA_FIEL || await perguntar('Email da conta de fiel: ');
+const SENHA = process.env.SENHA || await perguntar(`Senha de ${CONTA_FIEL}: `);
 
 let falhas = 0;
 const conferir = (ok, nome, detalhe = '') => {
