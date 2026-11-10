@@ -84,9 +84,12 @@ await etapa('mapa', 'novo_mapa.png', async () => {
   await page.getByLabel('Paróquias perto de um endereço ou CEP').fill(process.env.ENDERECO || 'Praça da Sé, São Paulo');
   await page.getByRole('button', { name: 'Buscar' }).click();
   await page.locator('#status-paroquias').filter({ hasText: 'ordenadas pela distância' }).waitFor({ timeout: 30_000 });
-  await page.getByLabel('Paróquias perto de um endereço ou CEP').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(2500);
-  await page.screenshot({ path: `${PASTA}/novo_mapa.png` });
+  // Fotografa o quadro inteiro da escolha de paróquia: busca, mapa e lista ordenada.
+  const quadro = page.locator('fieldset').filter({ has: mapa });
+  await quadro.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(3000);
+  // O cabeçalho fixo do site ficaria por cima do quadro; some só durante a foto.
+  await quadro.screenshot({ path: `${PASTA}/novo_mapa.png`, style: 'site-cabecalho, header { visibility: hidden !important; }' });
   await page.context().close();
 });
 
